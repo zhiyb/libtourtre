@@ -7,20 +7,26 @@
 ##                                                     ##
 #########################################################
 
+# Sample data
+DATA	= sampledata/CThead.256x256x113.uint16
+
 #name of the executable
 EXE = simple
 
+# libtourtre dir
+TOURTRE_DIR	= ../..
+
 #include directories
-INCLUDE_DIRS = -I../../include
+INCLUDE_DIRS = -I$(TOURTRE_DIR)/include
 
 #compiler flags
 COMPILE_FLAGS = -O2
 
 #lib directories
-LIB_DIRS = -L../.. 
+LIB_DIRS = -L$(TOURTRE_DIR)
 
 #linker flags
-LINK_FLAGS = -lz -ltourtre -static
+LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -ltbb
 
 #preprocessor defines
 DEFINES = -DUSE_ZLIB
@@ -35,17 +41,23 @@ SOURCE_DIR = src
 OBJ_DIR = obj
 
 
-
 #targets
-all: $(EXE)
+all:
+	cd $(TOURTRE_DIR); $(MAKE) $@
+	$(MAKE) $(EXE)
+
+gprof:
+	cd $(TOURTRE_DIR); $(MAKE) $@
+	$(MAKE) $(EXE).gprof
 
 clean: 
+	cd $(TOURTRE_DIR); $(MAKE) $@
 	-rm -f obj/*
 	-rm -f $(EXE)
 
-remake: clean $(EXE)
-
-
+remake:
+	$(MAKE) clean
+	$(MAKE) all
 
 #standard make vars
 CXX = g++

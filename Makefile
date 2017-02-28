@@ -1,6 +1,6 @@
 CC = gcc
 CPPFLAGS = -I./include
-CFLAGS = -ansi -pedantic -Wall -fPIC -O2
+CFLAGS = -ansi -pedantic -Wall -fPIC -O2 -Wno-unused-but-set-variable
 
 AR = ar
 ARFLAGS = -r
@@ -28,22 +28,10 @@ libtourtre.so : $(objs)
 src/tourtre.o : src/tourtre.c include/tourtre.h src/ctMisc.h include/ctArc.h include/ctNode.h src/ctComponent.h include/ctNode.h src/ctQueue.h src/ctAlloc.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-src/ctArc.o : src/ctArc.c include/tourtre.h src/ctMisc.h include/ctArc.h 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-src/ctBranch.o : src/ctBranch.c include/tourtre.h src/ctMisc.h include/ctBranch.h 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-src/ctComponent.o : src/ctComponent.c include/tourtre.h src/ctMisc.h src/ctComponent.h 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-src/ctNode.o : src/ctNode.c include/tourtre.h src/ctMisc.h include/ctNode.h 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
-src/ctQueue.o : src/ctQueue.c include/tourtre.h src/ctMisc.h src/ctQueue.h 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
 src/ctNodeMap.o : src/ctNodeMap.c src/ctNodeMap.h include/ctNode.h src/ctQueue.h src/sglib.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+src/%.o : src/%.c include/tourtre.h src/ctMisc.h include/%.h 
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 clean :
