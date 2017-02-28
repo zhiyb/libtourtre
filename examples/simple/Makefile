@@ -10,6 +10,9 @@
 # Sample data
 DATA	= sampledata/CThead.256x256x113.uint16
 DATA	= sampledata/CThead-2by2.256x512x226.uint16
+#DATA	= sampledata/CThead-2by4.256x512x452.uint16
+
+GDB_DATA	= sampledata/bucky.32x32x32.uint8
 
 #name of the executable
 EXE = simple
@@ -21,7 +24,7 @@ TOURTRE_DIR	= ../..
 INCLUDE_DIRS = -I$(TOURTRE_DIR)/include
 
 #compiler flags
-COMPILE_FLAGS = -O2 $(DEBUG_FLAGS)
+COMPILE_FLAGS = -O3 $(DEBUG_FLAGS)
 
 #lib directories
 LIB_DIRS = -L$(TOURTRE_DIR)
@@ -56,11 +59,22 @@ $(EXE): $(TOURTRE_DIR)/libtourtre.a
 $(TOURTRE_DIR)/libtourtre.a:
 	cd $(TOURTRE_DIR); $(MAKE) all
 
+.PHONY: test
+test:	$(EXE)
+	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
+
+.PHONY: gdb
+gdb:
+	$(MAKE) clean
+	$(MAKE) all DEBUG_FLAGS="-pg -g -O1"
+	gdb --tui $(EXE) -ex "run -c -i $(GDB_DATA)"
+	$(MAKE) clean
+
 .PHONY: gprof
 gprof:
 	$(MAKE) clean
-	$(MAKE) all DEBUG_FLAGS="-pg -g"
-	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
+	$(MAKE) all DEBUG_FLAGS="-pg -g -O2"
+	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).gprof.log
 	gprof $(EXE) > $(EXE).gprof
 	$(MAKE) clean
 

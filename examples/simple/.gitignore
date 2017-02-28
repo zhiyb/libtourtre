@@ -3,4 +3,5 @@ obj/
 simple
 gmon.out
 *.log
+*.time
 *.gprof
