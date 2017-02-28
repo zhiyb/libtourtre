@@ -51,6 +51,15 @@ void outputTree( std::ofstream & out, ctBranch * b ) {
 	out << ")";
 } 
 
+int countTree( ctBranch * b ) {
+        int count = 1;
+	
+	for ( ctBranch * c = b->children.head; c != NULL; c = c->nextChild ){
+		count += countTree( c );
+	}
+	
+	return count;
+} 
 
 
 
@@ -59,6 +68,7 @@ int main( int argc, char ** argv ) {
 
 
 	int errflg = 0;
+	int countOnly = 0;
 	int c;
 	
 	//command line parameters
@@ -66,9 +76,9 @@ int main( int argc, char ** argv ) {
 	char outfile[1024] = "";
 	
 	#if USE_ZLIB
-	char switches[256] = "i:o:";
+	char switches[256] = "i:o:c";
 	#else
-	char switches[256] = "i:o:";
+	char switches[256] = "i:o:c";
 	#endif
 
 	while ( ( c = getopt( argc, argv, switches ) ) != EOF ) {
@@ -81,7 +91,10 @@ int main( int argc, char ** argv ) {
 					strcpy(outfile,optarg);
 					break;
 				}
-				
+		                case 'c': {
+				        countOnly = 1;
+					break;
+				}
 				case '?':
 					errflg++;
 		}
@@ -93,6 +106,7 @@ int main( int argc, char ** argv ) {
 		clog << "flags" << endl;
 		clog << "\t -i < filename >  :  filename" << endl;
 		clog << "\t -o < filename >  :  filename" << endl;
+		clog << "\t -c    (to emit only a count of the tree size)" << endl;
 		clog << endl;
 
 		clog << "Filename must be of the form <name>.<i>x<j>x<k>.<type>" << endl;
@@ -137,12 +151,16 @@ int main( int argc, char ** argv ) {
 	ctBranch ** map = ct_branchMap(ctx);
 	ct_cleanup( ctx );
 	
-	//output tree
-	std::ofstream out(outfile,std::ios::out);
-	if (out) {
-		outputTree( out, root);
+	if (countOnly) {
+	  cout << "Number of nodes in the tree: " << countTree(root) << endl;
 	} else {
-		cerr << "couldn't open output file " << outfile << endl;
+	  //output tree
+	  std::ofstream out(outfile,std::ios::out);
+	  if (out) {
+	    outputTree( out, root);
+	  } else {
+	    cerr << "couldn't open output file " << outfile << endl;
+	  }
 	}
 	
 }

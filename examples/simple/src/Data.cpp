@@ -78,7 +78,7 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 	size[1] = atoi(ySize);
 	size[2] = atoi(zSize);
 
-	std::clog << "Loaing " << filename << " with dimensions " << size[0] << " x " << size[1] << " x " << size[2] << ", of type " << typeP << std::endl;
+	std::clog << "Loading " << filename << " with dimensions " << size[0] << " x " << size[1] << " x " << size[2] << ", of type " << typeP << std::endl;
 	strcpy(prefix,fullPath);
 
 	totalSize = size[0] * size[1] * size[2];
