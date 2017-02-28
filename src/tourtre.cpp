@@ -1,3 +1,5 @@
+/* vim: ts=4 sw=4 et
+ */
 /*
 Copyright (c) 2006, Scott E. Dillard
 All rights reserved.
@@ -23,7 +25,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 
 #include "tourtre.h"
 
@@ -97,16 +98,16 @@ ct_init
     ctx->splitRoot = NULL;
    
     
-    ctx->joinComps = calloc( sizeof(ctComponent*), ctx->numVerts );
+    ctx->joinComps = (ctComponent**)calloc( sizeof(ctComponent*), ctx->numVerts );
     memset(ctx->joinComps,0x0,sizeof(ctComponent*)*ctx->numVerts );
     
-    ctx->splitComps = calloc( sizeof(ctComponent*), ctx->numVerts );
+    ctx->splitComps = (ctComponent**)calloc( sizeof(ctComponent*), ctx->numVerts );
     memset(ctx->splitComps,0x0,sizeof(ctComponent*)*ctx->numVerts );
 
-    ctx->nextJoin = calloc( sizeof(size_t), ctx->numVerts );
+    ctx->nextJoin = (size_t *)calloc( sizeof(size_t), ctx->numVerts );
     memset(ctx->nextJoin,CT_NIL,sizeof(size_t)*ctx->numVerts );
     
-    ctx->nextSplit = calloc( sizeof(size_t), ctx->numVerts );
+    ctx->nextSplit = (size_t *)calloc( sizeof(size_t), ctx->numVerts );
     memset(ctx->nextSplit,CT_NIL,sizeof(size_t)*ctx->numVerts );
 
     ctx->arcMap = 0;
@@ -196,7 +197,8 @@ ct_checkContext(ctx);
     ctComponent * iComp;
     int numExtrema = 0;
     int numSaddles = 0;
-    size_t * nbrs = calloc ( ctx->maxValence, sizeof(size_t) );
+    size_t its = (end - start) / inc;
+    size_t * nbrs = (size_t *)calloc ( ctx->maxValence, sizeof(size_t) ), *nptr = nbrs;
 
     for ( itr = start; itr != end; itr += inc ) {
         size_t numNbrs;
@@ -384,7 +386,7 @@ void
 ct_queueLeaves( ctLeafQ *lq, ctComponent *c_, ComponentMap *map )
 {
     size_t list_mem_size=256, list_size=0;
-    ctComponent**list = malloc(list_mem_size*sizeof(ctComponent*));
+    ctComponent**list = (ctComponent **)malloc(list_mem_size*sizeof(ctComponent*));
 
     size_t stack_mem_size = 1024, stack_size=1;
     ctComponent **stack = (ctComponent**) malloc( stack_mem_size * sizeof(ctComponent*) );
@@ -397,7 +399,7 @@ ct_queueLeaves( ctLeafQ *lq, ctComponent *c_, ComponentMap *map )
         list[list_size++] = c;
         if (list_size == list_mem_size) {
             list_mem_size *= 2;
-            list = realloc(list,list_mem_size*sizeof(ctComponent*));
+            list = (ctComponent **)realloc(list,list_mem_size*sizeof(ctComponent*));
         }
 
         if (ctComponent_isLeaf(c)) {
@@ -409,7 +411,7 @@ ct_queueLeaves( ctLeafQ *lq, ctComponent *c_, ComponentMap *map )
                 stack[stack_size++] = pred; 
                 if (stack_size == stack_mem_size) {
                     stack_mem_size *= 2;
-                    stack = realloc(stack,stack_mem_size*sizeof(ctComponent*));
+                    stack = (ctComponent **)realloc(stack,stack_mem_size*sizeof(ctComponent*));
                 } 
             }
         }

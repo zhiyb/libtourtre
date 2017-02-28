@@ -1,6 +1,6 @@
-CC = gcc
+CC = g++
 CPPFLAGS = -I./include
-CFLAGS = -ansi -pedantic -Wall -fPIC -O3 -Wno-unused-but-set-variable $(DEBUG_FLAGS)
+CFLAGS = -ansi -pedantic -Wall -fPIC -O3 -Wno-unused-but-set-variable -Wno-unused-variable $(DEBUG_FLAGS)
 
 AR = ar
 ARFLAGS = -r
@@ -25,13 +25,16 @@ libtourtre.a : $(objs)
 libtourtre.so : $(objs)
 	$(CC) -shared -o $@ $^
 
-src/tourtre.o : src/tourtre.c include/tourtre.h src/ctMisc.h include/ctArc.h include/ctNode.h src/ctComponent.h include/ctNode.h src/ctQueue.h src/ctAlloc.h
+src/tourtre.o : src/tourtre.cpp include/tourtre.h src/ctMisc.h include/ctArc.h include/ctNode.h src/ctComponent.h include/ctNode.h src/ctQueue.h src/ctAlloc.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-src/ctNodeMap.o : src/ctNodeMap.c src/ctNodeMap.h include/ctNode.h src/ctQueue.h src/sglib.h
+src/ctNodeMap.o : src/ctNodeMap.cpp src/ctNodeMap.h include/ctNode.h src/ctQueue.h src/sglib.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-src/%.o : src/%.c include/tourtre.h src/ctMisc.h include/%.h 
+src/%.o : src/%.cpp include/tourtre.h src/ctMisc.h include/%.h 
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+src/%.o : src/%.cpp include/tourtre.h src/ctMisc.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 clean :

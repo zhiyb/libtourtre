@@ -61,13 +61,13 @@ $(TOURTRE_DIR)/libtourtre.a:
 
 .PHONY: test
 test:	$(EXE)
-	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
+	(time ./$(EXE) -c -i $(GDB_DATA)) 2>&1 | tee $(EXE).log
 
 .PHONY: gdb
 gdb:
 	$(MAKE) clean
-	$(MAKE) all DEBUG_FLAGS="-pg -g -O1"
-	gdb --tui $(EXE) -ex "run -c -i $(GDB_DATA)"
+	$(MAKE) all DEBUG_FLAGS="-pg -g -O0"
+	gdb --tui $(EXE) -ex "break main" -ex "run -c -i $(GDB_DATA)"
 	$(MAKE) clean
 
 .PHONY: gprof

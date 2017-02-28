@@ -22,7 +22,7 @@ SGLIB_DEFINE_RBTREE_FUNCTIONS(ctNodeMap,left,right,color,CT_NODEMAP_COMP)
 void
 ctNodeMap_insert( ctNodeMap **map, size_t key, ctNode *node )
 {
-    ctNodeMap *n = malloc(sizeof(ctNodeMap));
+    ctNodeMap *n = (ctNodeMap *)malloc(sizeof(ctNodeMap));
     n->left = n->right = 0;
     n->key = key;
     n->node = node;

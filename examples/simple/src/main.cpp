@@ -2,10 +2,7 @@
 #include <fstream>
 #include <cstring>
 
-extern "C" 
-{
 #include <tourtre.h>
-}
 
 #include "Data.h"
 #include "Mesh.h"
