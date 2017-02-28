@@ -20,13 +20,13 @@ TOURTRE_DIR	= ../..
 INCLUDE_DIRS = -I$(TOURTRE_DIR)/include
 
 #compiler flags
-COMPILE_FLAGS = -O2
+COMPILE_FLAGS = -O2 $(DEBUG_FLAGS)
 
 #lib directories
 LIB_DIRS = -L$(TOURTRE_DIR)
 
 #linker flags
-LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -ltbb
+LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -ltbb $(DEBUG_FLAGS)
 
 #preprocessor defines
 DEFINES = -DUSE_ZLIB
@@ -40,6 +40,7 @@ SOURCE_DIR = src
 #temporaries dir (object files, moc files, etc)
 OBJ_DIR = obj
 
+SHELL	= /bin/bash
 
 #targets
 all:
@@ -47,8 +48,11 @@ all:
 	$(MAKE) $(EXE)
 
 gprof:
-	cd $(TOURTRE_DIR); $(MAKE) $@
-	$(MAKE) $(EXE).gprof
+	$(MAKE) clean
+	$(MAKE) all DEBUG_FLAGS="-pg -g"
+	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
+	gprof $(EXE) > $(EXE).gprof
+	$(MAKE) clean
 
 clean: 
 	cd $(TOURTRE_DIR); $(MAKE) $@

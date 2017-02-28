@@ -1,6 +1,6 @@
 CC = gcc
 CPPFLAGS = -I./include
-CFLAGS = -ansi -pedantic -Wall -fPIC -O2 -Wno-unused-but-set-variable
+CFLAGS = -ansi -pedantic -Wall -fPIC -O2 -Wno-unused-but-set-variable $(DEBUG_FLAGS)
 
 AR = ar
 ARFLAGS = -r
