@@ -9,6 +9,7 @@
 
 # Sample data
 DATA	= sampledata/CThead.256x256x113.uint16
+DATA	= sampledata/CThead-2by2.256x512x226.uint16
 
 #name of the executable
 EXE = simple
@@ -43,10 +44,19 @@ OBJ_DIR = obj
 SHELL	= /bin/bash
 
 #targets
+.DELETE_ON_ERROR:
+
+.PHONY: all
 all:
 	cd $(TOURTRE_DIR); $(MAKE) $@
 	$(MAKE) $(EXE)
 
+$(EXE): $(TOURTRE_DIR)/libtourtre.a
+
+$(TOURTRE_DIR)/libtourtre.a:
+	cd $(TOURTRE_DIR); $(MAKE) all
+
+.PHONY: gprof
 gprof:
 	$(MAKE) clean
 	$(MAKE) all DEBUG_FLAGS="-pg -g"
@@ -54,11 +64,28 @@ gprof:
 	gprof $(EXE) > $(EXE).gprof
 	$(MAKE) clean
 
+AVERAGE	?= 6
+SEQ	:= $(shell seq 1 $(AVERAGE))
+LOGS	:= $(SEQ:%=$(EXE).%.log)
+
+.PHONY: time
+time:
+	$(MAKE) all
+	$(MAKE) $(EXE).time $(JOBS)
+
+$(EXE).time: $(LOGS)
+	grep -F -h real $(LOGS) | awk '{print $$2}' | sed 's/m/*60+/g;s/s//g' | bc | xargs | tee $@
+
+$(EXE).%.log: $(EXE)
+	(time ./$< -c -i $(DATA)) 2>&1 | tee $@;
+
+.PHONY: clean
 clean: 
-	cd $(TOURTRE_DIR); $(MAKE) $@
-	-rm -f obj/*
+	-cd $(TOURTRE_DIR); $(MAKE) $@
+	-rm -f obj/* $(LOGS)
 	-rm -f $(EXE)
 
+.PHONY: remake
 remake:
 	$(MAKE) clean
 	$(MAKE) all
