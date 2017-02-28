@@ -65,6 +65,8 @@ gprof:
 	$(MAKE) clean
 
 AVERAGE	?= 6
+JOBS	?= -j1
+
 SEQ	:= $(shell seq 1 $(AVERAGE))
 LOGS	:= $(SEQ:%=$(EXE).%.log)
 
