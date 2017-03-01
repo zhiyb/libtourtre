@@ -55,12 +55,12 @@ size_t Mesh::find6Neighbors( uint x, uint y, uint z, size_t *neighbors)
 		}
 	};
 
-	check(x - 1, y, z);
-	check(x, y - 1, z);
 	check(x, y, z - 1);
-	check(x + 1, y, z);
-	check(x, y + 1, z);
 	check(x, y, z + 1);
+	check(x, y - 1, z);
+	check(x, y + 1, z);
+	check(x - 1, y, z);
+	check(x + 1, y, z);
 	return size;
 }
 
@@ -74,25 +74,25 @@ size_t Mesh::find18Neighbors( uint x, uint y, uint z, size_t *neighbors)
 		}
 	};
 
-	check(x - 1, y, z);
 	check(x, y - 1, z);
-	check(x, y, z - 1);
-	check(x + 1, y, z);
-	check(x, y + 1, z);
-	check(x, y, z + 1);
-
-	check(x - 1, y - 1, z);
-	check(x - 1, y + 1, z);
 	check(x, y - 1, z - 1);
 	check(x, y - 1, z + 1);
+	check(x, y + 1, z + 1);
+	check(x, y + 1, z);
+	check(x, y + 1, z - 1);
+	check(x, y, z - 1);
+	check(x, y, z + 1);
+
+	check(x - 1, y, z + 1);
+	check(x - 1, y, z);
 	check(x - 1, y, z - 1);
 	check(x + 1, y, z - 1);
+	check(x + 1, y, z + 1);
+	check(x + 1, y, z);
 
 	check(x + 1, y - 1, z);
 	check(x + 1, y + 1, z);
-	check(x, y + 1, z - 1);
-	check(x, y + 1, z + 1);
-	check(x - 1, y, z + 1);
-	check(x + 1, y, z + 1);
+	check(x - 1, y + 1, z);
+	check(x - 1, y - 1, z);
 	return size;
 }
