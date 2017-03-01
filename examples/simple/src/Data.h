@@ -54,8 +54,20 @@ struct Data
 		x = id - z*size01 - y*size[0];
 	}
 	
-	bool greater(uint a, uint b);
-	bool less(uint a, uint b);
+	bool greater(uint a, uint b)
+	{
+		//use overloaded [] operator to access saddles
+		if (compareEqual((*this)[a],(*this)[b])) return a > b;
+		else return compareLess((*this)[b],(*this)[a]);
+	}
+
+	bool less(uint a, uint b)
+	{
+		//use overloaded [] operator to access saddles
+		if (compareEqual( (*this)[a],(*this)[b])) return a < b;
+		else return compareLess((*this)[a],(*this)[b]);
+	}
+
 	bool load( const char * filename, char * prefix, bool * compressed ); //prefix and compressed are written to
 
 };

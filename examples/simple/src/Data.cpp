@@ -9,20 +9,6 @@
 #include <zlib.h>
 #endif
 
-
-bool Data::less( uint a, uint b ) 
-{
-	//use overloaded [] operator to access saddles
-	if (compareEqual( (*this)[a],(*this)[b])) return a < b;
-	else return compareLess((*this)[a],(*this)[b]);
-}
-
-bool Data::greater( uint a, uint b ) 
-{
-	if (compareEqual((*this)[a],(*this)[b])) return a > b;
-	else return compareLess((*this)[b],(*this)[a]);
-}
-
 #if defined(WIN32)
 	#define DIR_SYMBOL "\\"
 #else
