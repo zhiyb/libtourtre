@@ -197,9 +197,28 @@ ct_checkContext(ctx);
     ctComponent * iComp;
     int numExtrema = 0;
     int numSaddles = 0;
-    size_t its = (end - start) / inc;
-    size_t * nbrs = (size_t *)calloc ( ctx->maxValence, sizeof(size_t) ), *nptr = nbrs;
+    size_t its = inc > 0 ? (end - start) / inc : (start - end) / -inc;
+#if 0
+    size_t * nbrs = (size_t *)calloc ( ctx->maxValence * its, sizeof(size_t) ), *nptr = nbrs;
+    if (nbrs == 0) {
+        fprintf(stderr, "Memory allocation error: %lu bytes", ctx->maxValence * its * sizeof(size_t));
+        exit(1);
+    }
+#else
+    size_t * nbrs = (size_t *)calloc ( ctx->maxValence, sizeof(size_t) );
+#endif
 
+#if 0
+    size_t *numNbr = (size_t *)malloc(sizeof(size_t) * its), *ptr = numNbr;
+    for ( itr = start; itr != end; itr += inc ) {
+        i = ctx->totalOrder[itr];
+        *ptr++ = (*(ctx->neighbors))(i, nptr, ctx->cbData);
+        nptr += ctx->maxValence;
+    }
+
+    ptr = numNbr;
+    nptr = nbrs;
+#endif
     for ( itr = start; itr != end; itr += inc ) {
         size_t numNbrs;
         int numNbrComps;
@@ -207,10 +226,18 @@ ct_checkContext(ctx);
         i = ctx->totalOrder[itr];
         
         iComp = NULL;
+#if 1
         numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
+#else
+        numNbrs = *ptr++;
+#endif
         numNbrComps = 0;
         for (n = 0; n < numNbrs; n++) {
+#if 1
             size_t j = nbrs[n];
+#else
+            size_t j = nptr[n];
+#endif
             
             if ( comps[j] ) {
                 ctComponent * jComp = ctComponent_find( comps[j] );
@@ -257,6 +284,9 @@ ct_checkContext(ctx);
                 }
             }
         } /*  for each neighbor */
+#if 0
+        nptr += ctx->maxValence;
+#endif
 
         if (numNbrComps == 0) {
             /* this was a local maxima. create a new component */

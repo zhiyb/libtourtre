@@ -25,15 +25,7 @@ double value ( size_t v, void * d ) {
 
 size_t neighbors ( size_t v, size_t * nbrs, void * d ) {
 	Mesh * mesh = static_cast<Mesh*>(d);
-	static std::vector<size_t> nbrsBuf;
-	
-	nbrsBuf.clear();
-	mesh->getNeighbors(v,nbrsBuf);
-	
-	for (uint i = 0; i < nbrsBuf.size(); i++) {
-		nbrs[i] = nbrsBuf[i]; 
-	}
-	return nbrsBuf.size();
+	return mesh->getNeighbors(v,nbrs);
 }
 
 

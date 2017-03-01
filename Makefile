@@ -1,6 +1,6 @@
 CC = g++
 CPPFLAGS = -I./include
-CFLAGS = -ansi -pedantic -Wall -fPIC -O3 -Wno-unused-but-set-variable -Wno-unused-variable $(DEBUG_FLAGS)
+CFLAGS = -ansi -pedantic -Wall -fPIC -fopenmp -O3 -Wno-unused-but-set-variable -Wno-unused-variable $(DEBUG_FLAGS)
 
 AR = ar
 ARFLAGS = -r

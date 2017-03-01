@@ -24,7 +24,7 @@ TOURTRE_DIR	= ../..
 INCLUDE_DIRS = -I$(TOURTRE_DIR)/include
 
 #compiler flags
-COMPILE_FLAGS = -O3 $(DEBUG_FLAGS)
+COMPILE_FLAGS = -fopenmp -O3 $(DEBUG_FLAGS)
 
 #lib directories
 LIB_DIRS = -L$(TOURTRE_DIR)
@@ -60,8 +60,9 @@ $(TOURTRE_DIR)/libtourtre.a:
 	cd $(TOURTRE_DIR); $(MAKE) all
 
 .PHONY: test
-test:	$(EXE)
-	(time ./$(EXE) -c -i $(GDB_DATA)) 2>&1 | tee $(EXE).log
+test:
+	$(MAKE) all
+	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
 
 .PHONY: gdb
 gdb:
