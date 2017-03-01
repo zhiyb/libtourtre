@@ -24,7 +24,7 @@ TOURTRE_DIR	= ../..
 INCLUDE_DIRS = -I$(TOURTRE_DIR)/include
 
 #compiler flags
-COMPILE_FLAGS = -fopenmp -O3 $(DEBUG_FLAGS)
+COMPILE_FLAGS = -std=c++11 -fopenmp -O3 $(DEBUG_FLAGS)
 
 #lib directories
 LIB_DIRS = -L$(TOURTRE_DIR)
