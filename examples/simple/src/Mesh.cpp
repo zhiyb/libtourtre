@@ -33,18 +33,6 @@ void Mesh::createGraph(std::vector<size_t> & order)
 	sort( order.begin() , order.end(), AscendingOrder(data) );
 }
 
-size_t Mesh::getNeighbors(size_t i, size_t *n)
-{
-	uint x,y,z;
-	data.convertIndex( i, x, y, z );
-	if ( (x+y+z)%2 == ODD_TET_PARITY ) {
-		return find6Neighbors(x,y,z,n);
-	} else {
-		return find18Neighbors(x,y,z,n);
-	}
-}
-
-
 size_t Mesh::find6Neighbors( uint x, uint y, uint z, size_t *neighbors) 
 {
 	size_t size = 0;
