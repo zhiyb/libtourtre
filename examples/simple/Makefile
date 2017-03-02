@@ -30,7 +30,7 @@ COMPILE_FLAGS = -std=c++11 -fopenmp -O3 $(DEBUG_FLAGS)
 LIB_DIRS = -L$(TOURTRE_DIR)
 
 #linker flags
-LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -ltbb $(DEBUG_FLAGS) -fopenmp
+LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -fopenmp $(DEBUG_FLAGS)
 
 #preprocessor defines
 DEFINES = -DUSE_ZLIB
