@@ -251,11 +251,16 @@ ct_checkContext(ctx);
                     } else if (numNbrComps == 1) {
                         /* create new component */
                         ctComponent * newComp = ctComponent_new(type); 
+#pragma omp sections
+{
+                        {                        
                         newComp->birth = i;
                         ctComponent_addPred( newComp, iComp );
                         ctComponent_addPred( newComp, jComp );
-
+                        }
+#pragma omp section
                         /* finish the two existing components */
+                        {
                         iComp->death = i;
                         iComp->succ = newComp;
                         ctComponent_union(iComp, newComp);
@@ -263,7 +268,8 @@ ct_checkContext(ctx);
                         jComp->death = i;
                         jComp->succ = newComp;
                         ctComponent_union(jComp, newComp);
-
+                        }
+}
                         next[ jComp->last ] = i;
 
                         iComp = newComp;
