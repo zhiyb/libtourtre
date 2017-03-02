@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
-
+#include "parallel_stable_sort.h"
 using std::cout;
 using std::endl;
 using std::sort;
@@ -29,8 +29,9 @@ void Mesh::createGraph(std::vector<size_t> & order)
 	
 	for (uint i = 0; i < order.size(); i++) 
 		order[i] = i;
-	
-	sort( order.begin() , order.end(), AscendingOrder(data) );
+#pragma omp parallel
+#pragma omp master
+	pss::parallel_stable_sort( order.begin() , order.end(), AscendingOrder(data) );
 }
 
 size_t Mesh::find6Neighbors( uint x, uint y, uint z, size_t *neighbors) 

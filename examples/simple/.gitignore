@@ -5,3 +5,4 @@ gmon.out
 *.log
 *.time
 *.gprof
+*.swp
