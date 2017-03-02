@@ -226,7 +226,7 @@ ct_checkContext(ctx);
         i = ctx->totalOrder[itr];
         
         iComp = NULL;
-#if 10
+#if 1
         numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
 #else
         numNbrs = *ptr++;
@@ -251,14 +251,14 @@ ct_checkContext(ctx);
                     } else if (numNbrComps == 1) {
                         /* create new component */
                         ctComponent * newComp = ctComponent_new(type); 
-#pragma omp sections
-{
+//#pragma omp sections
+//{
                         {                        
                         newComp->birth = i;
                         ctComponent_addPred( newComp, iComp );
                         ctComponent_addPred( newComp, jComp );
                         }
-#pragma omp section
+//#pragma omp section
                         /* finish the two existing components */
                         {
                         iComp->death = i;
@@ -269,7 +269,7 @@ ct_checkContext(ctx);
                         jComp->succ = newComp;
                         ctComponent_union(jComp, newComp);
                         }
-}
+//}
                         next[ jComp->last ] = i;
 
                         iComp = newComp;
