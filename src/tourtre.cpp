@@ -198,109 +198,129 @@ ct_checkContext(ctx);
     int numExtrema = 0;
     int numSaddles = 0;
     size_t its = inc > 0 ? (end - start) / inc : (start - end) / -inc;
-#if 0
-    size_t * nbrs = (size_t *)calloc ( ctx->maxValence * its, sizeof(size_t) ), *nptr = nbrs;
+#define BS  500000
+    int bs = its > BS ? BS : its, bcount = (its + bs - 1u) / bs;
+    //fprintf(stderr, "start: %lu, end: %lu, inc: %d, its: %u\n", start, end, inc, its);
+    //fprintf(stderr, "bs: %u, bcount: %u, its: %u\n", bs, bcount, its);
+#if 1
+    size_t * nbrs = (size_t *)calloc ( ctx->maxValence * bs, sizeof(size_t) ), *nptr;
+    size_t *numNbr = (size_t *)malloc(sizeof(size_t) * bs), *ptr;
+    //fprintf(stderr, "max: %lu, its: %lu\n", ctx->maxValence, its);
     if (nbrs == 0) {
-        fprintf(stderr, "Memory allocation error: %lu bytes", ctx->maxValence * its * sizeof(size_t));
+        fprintf(stderr, "Memory allocation error: %lu bytes", ctx->maxValence * bs * sizeof(size_t));
         exit(1);
     }
 #else
     size_t * nbrs = (size_t *)calloc ( ctx->maxValence, sizeof(size_t) );
 #endif
 
-#if 0
-    size_t *numNbr = (size_t *)malloc(sizeof(size_t) * its), *ptr = numNbr;
-    for ( itr = start; itr != end; itr += inc ) {
-        i = ctx->totalOrder[itr];
-        *ptr++ = (*(ctx->neighbors))(i, nptr, ctx->cbData);
-        nptr += ctx->maxValence;
-    }
-
-    ptr = numNbr;
-    nptr = nbrs;
-#endif
-    for ( itr = start; itr != end; itr += inc ) {
-        size_t numNbrs;
-        int numNbrComps;
-        
-        i = ctx->totalOrder[itr];
-        
-        iComp = NULL;
 #if 1
-        numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
-#else
-        numNbrs = *ptr++;
-#endif
-        numNbrComps = 0;
-        for (n = 0; n < numNbrs; n++) {
-#if 1
-            size_t j = nbrs[n];
-#else
-            size_t j = nptr[n];
-#endif
-            
-            if ( comps[j] ) {
-                ctComponent * jComp = ctComponent_find( comps[j] );
+    while (bcount--) {
+        if ((int)its < bs)
+            bs = its;
+        its -= bs;
 
-                if (iComp != jComp) {
-                    if (numNbrComps == 0) {
-                        numNbrComps++;
-                        iComp = jComp;
-                        comps[i] = iComp;
-                        next[iComp->last] = i;
-                    } else if (numNbrComps == 1) {
-                        /* create new component */
-                        ctComponent * newComp = ctComponent_new(type); 
-                        newComp->birth = i;
-                        ctComponent_addPred( newComp, iComp );
-                        ctComponent_addPred( newComp, jComp );
+        //fprintf(stderr, "It: from %ld to %ld step %d\n", start, inc * bs + (int)start, inc);
+        ptr = numNbr;
+        nptr = nbrs;
 
-                        /* finish the two existing components */
-                        iComp->death = i;
-                        iComp->succ = newComp;
-                        ctComponent_union(iComp, newComp);
-
-                        jComp->death = i;
-                        jComp->succ = newComp;
-                        ctComponent_union(jComp, newComp);
-
-                        next[ jComp->last ] = i;
-
-                        iComp = newComp;
-                        comps[i] = newComp;
-                        newComp->last = i;
-
-                        numSaddles++;
-                        numNbrComps++;
-                        
-                    } else {
-                        /*finish existing arc */
-                        jComp->death = i;
-                        jComp->succ = iComp;
-                        ctComponent_union(jComp,iComp);
-                        ctComponent_addPred(iComp,jComp);
-                        next[jComp->last] = i;
-                    }
-                }
-            }
-        } /*  for each neighbor */
-#if 0
-        nptr += ctx->maxValence;
-#endif
-
-        if (numNbrComps == 0) {
-            /* this was a local maxima. create a new component */
-            iComp = ctComponent_new(type);
-            iComp->birth = i;
-            comps[i] = iComp;
-            iComp->last = i;
-            numExtrema++;
-        } else if (numNbrComps == 1) {
-            /* this was a regular point. set last */
-            iComp->last = i;
+#pragma omp parallel for
+        for (itr = 0; itr < bs; itr++) {
+            //fprintf(stderr, "itr: %lu\n", itr);
+            size_t i = ctx->totalOrder[(int)start + (int)itr * inc];
+            *(ptr+ itr) = (*(ctx->neighbors))(i, nptr + itr * ctx->maxValence, ctx->cbData);
+            //nptr += ctx->maxValence;
         }
 
-    } /* for each vertex */
+        ptr = numNbr;
+        nptr = nbrs;
+        for ( itr = start; (int)itr != (int)start + inc * bs; itr += inc ) {
+#else
+            for ( itr = start; itr != end; itr += inc ) {}
+#endif
+            size_t numNbrs;
+            int numNbrComps;
+
+            i = ctx->totalOrder[itr];
+
+            iComp = NULL;
+#if 0
+            numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
+#else
+            numNbrs = *ptr++;
+#endif
+            numNbrComps = 0;
+            for (n = 0; n < numNbrs; n++) {
+#if 0
+                size_t j = nbrs[n];
+#else
+                size_t j = nptr[n];
+#endif
+
+                if ( comps[j] ) {
+                    ctComponent * jComp = ctComponent_find( comps[j] );
+
+                    if (iComp != jComp) {
+                        if (numNbrComps == 0) {
+                            numNbrComps++;
+                            iComp = jComp;
+                            comps[i] = iComp;
+                            next[iComp->last] = i;
+                        } else if (numNbrComps == 1) {
+                            /* create new component */
+                            ctComponent * newComp = ctComponent_new(type); 
+                            newComp->birth = i;
+                            ctComponent_addPred( newComp, iComp );
+                            ctComponent_addPred( newComp, jComp );
+
+                            /* finish the two existing components */
+                            iComp->death = i;
+                            iComp->succ = newComp;
+                            ctComponent_union(iComp, newComp);
+
+                            jComp->death = i;
+                            jComp->succ = newComp;
+                            ctComponent_union(jComp, newComp);
+
+                            next[ jComp->last ] = i;
+
+                            iComp = newComp;
+                            comps[i] = newComp;
+                            newComp->last = i;
+
+                            numSaddles++;
+                            numNbrComps++;
+
+                        } else {
+                            /*finish existing arc */
+                            jComp->death = i;
+                            jComp->succ = iComp;
+                            ctComponent_union(jComp,iComp);
+                            ctComponent_addPred(iComp,jComp);
+                            next[jComp->last] = i;
+                        }
+                    }
+                }
+            } /*  for each neighbor */
+#if 1
+            nptr += ctx->maxValence;
+#endif
+
+            if (numNbrComps == 0) {
+                /* this was a local maxima. create a new component */
+                iComp = ctComponent_new(type);
+                iComp->birth = i;
+                comps[i] = iComp;
+                iComp->last = i;
+                numExtrema++;
+            } else if (numNbrComps == 1) {
+                /* this was a regular point. set last */
+                iComp->last = i;
+            }
+
+        } /* for each vertex */
+        start = (int)start + inc * bs;
+    }
 
     /* tie off end */
     iComp = ctComponent_find( comps[i] );
