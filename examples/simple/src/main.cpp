@@ -126,6 +126,7 @@ int main( int argc, char ** argv ) {
 	//init libtourtre
 	ctContext * ctx = ct_init(
 		data.totalSize, //numVertices
+		18,	// maxValence
 		&(totalOrder.front()), //totalOrder. Take the address of the front of an stl vector, which is the same as a C array
 		&value,
 		&neighbors,
