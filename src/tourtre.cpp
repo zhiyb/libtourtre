@@ -226,7 +226,7 @@ ct_checkContext(ctx);
         i = ctx->totalOrder[itr];
         
         iComp = NULL;
-#if 1
+#if 10
         numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
 #else
         numNbrs = *ptr++;
