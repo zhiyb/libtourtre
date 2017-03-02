@@ -70,6 +70,7 @@ deallocation function is ct_cleanup
 
 ctContext * ct_init(
     size_t  numVertices,
+    size_t  maxValence,
     size_t  *totalOrder,
     double  (*value)( size_t v, void* ),
     size_t  (*neighbors)( size_t v, size_t* nbrs, void* ),
