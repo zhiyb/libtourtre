@@ -65,6 +65,7 @@ ct_checkContext ( ctContext * ctx );
 ctContext* 
 ct_init
 (   size_t  numVerts,
+    size_t  maxValence,
     size_t  *totalOrder, 
     double  (*value)( size_t v, void* ),
     size_t  (*neighbors)( size_t v, size_t* nbrs, void* ),
@@ -77,7 +78,8 @@ ct_init
     memset(ctx, 0, sizeof(ctContext) );
     
     /* set default values */
-    ctx->maxValence = 256;
+    //ctx->maxValence = 256;
+    ctx->maxValence = maxValence;
     ctx->arcAlloc = ct_arcMalloc;
     ctx->arcFree = ct_arcFree;
     ctx->nodeAlloc = ct_nodeMalloc;
