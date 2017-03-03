@@ -116,7 +116,7 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
+  \usepackage[pdftex]{graphicx}
   % declare the path(s) where your graphic files are
   % \graphicspath{{../pdf/}{../jpeg/}}
   % and their extensions so you won't have to specify these with
@@ -126,7 +126,7 @@
   % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
   % will default to the driver specified in the system graphics.cfg if no
   % driver is specified.
-  % \usepackage[dvips]{graphicx}
+  \usepackage[dvips]{graphicx}
   % declare the path(s) where your graphic files are
   % \graphicspath{{../eps/}}
   % and their extensions so you won't have to specify these with
@@ -159,13 +159,13 @@
 
 % *** MATH PACKAGES ***
 %
-%\usepackage{amsmath}
+\usepackage{amsmath}
 % A popular package from the American Mathematical Society that provides
 % many useful and powerful commands for dealing with mathematics.
 %
 % Note that the amsmath package sets \interdisplaylinepenalty to 10000
 % thus preventing page breaks from occurring within multiline equations. Use:
-%\interdisplaylinepenalty=2500
+\interdisplaylinepenalty=2500
 % after loading amsmath to restore such page breaks as IEEEtran.cls normally
 % does. amsmath.sty is already installed on most LaTeX systems. The latest
 % version and documentation can be obtained at:
@@ -217,11 +217,11 @@
 
 
 % *** SUBFIGURE PACKAGES ***
-%\ifCLASSOPTIONcompsoc
-%  \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
-%\else
-%  \usepackage[caption=false,font=footnotesize]{subfig}
-%\fi
+\ifCLASSOPTIONcompsoc
+  \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\else
+  \usepackage[caption=false,font=footnotesize]{subfig}
+\fi
 % subfig.sty, written by Steven Douglas Cochran, is the modern replacement
 % for subfigure.sty, the latter of which is no longer maintained and is
 % incompatible with some LaTeX packages including fixltx2e. However,
@@ -301,6 +301,41 @@
 
 
 
+% hyperref
+%
+\usepackage[pdfpagemode={UseOutlines},bookmarks=true,bookmarksopen=true,
+   bookmarksopenlevel=0,bookmarksnumbered=true,hypertexnames=false,
+   colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
+   pdfstartview={FitV},unicode,breaklinks=true]{hyperref}
+
+% listing
+%
+\usepackage{listings,color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\newcommand{\fsize}{\small}
+%\newcommand{\fsize}{\tiny}
+\newcommand{\tabsize}{4}
+
+\lstset{frame=tb,
+  language=C++,
+%  aboveskip=0mm,
+  belowskip=0mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\fsize\ttfamily},
+  numberstyle=\fsize\color{gray},
+%  numbers=left,
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=\tabsize
+}
+
 % *** Do not adjust lengths that control margins, column widths, etc. ***
 % *** Do not use packages that alter fonts (such as pslatex).         ***
 % There should be no need to do such things with IEEEtran.cls V1.6 and later.
@@ -311,6 +346,11 @@
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
+\newcommand{\fref}[1]{\figurename~\ref{#1}}
+\newcommand{\eref}[1]{(\ref{#1})}
+\newcommand{\tref}[1]{\tablename~\ref{#1}}
+\newcommand{\lref}[1]{LISTING~\ref{#1}}
+
 
 \begin{document}
 %
@@ -320,28 +360,26 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{Bare Demo of IEEEtran.cls\\ for IEEE Conferences}
+\title{Contour Trees Challenge Exercise Report}
 
 
 % author names and affiliations
 % use a multiple column layout for up to three different
 % affiliations
-\author{\IEEEauthorblockN{Michael Shell}
-\IEEEauthorblockA{School of Electrical and\\Computer Engineering\\
-Georgia Institute of Technology\\
-Atlanta, Georgia 30332--0250\\
-Email: http://www.michaelshell.org/contact.html}
+\author{\IEEEauthorblockN{Yubo Zhi}
+\IEEEauthorblockA{Imperial College London\\
+MSc Analogue and Digital\\Integrated Circuit Design\\
+Email: yz4116@ic.ac.uk}
 \and
-\IEEEauthorblockN{Homer Simpson}
-\IEEEauthorblockA{Twentieth Century Fox\\
-Springfield, USA\\
-Email: homer@thesimpsons.com}
+\IEEEauthorblockN{Jiayang Sun}
+\IEEEauthorblockA{Imperial College London\\
+MSc Analogue and Digital\\Integrated Circuit Design\\
+Email: js11815@ic.ac.uk}
 \and
-\IEEEauthorblockN{James Kirk\\ and Montgomery Scott}
-\IEEEauthorblockA{Starfleet Academy\\
-San Francisco, California 96678--2391\\
-Telephone: (800) 555--1212\\
-Fax: (888) 555--1212}}
+\IEEEauthorblockN{Jiuxi Meng}
+\IEEEauthorblockA{Imperial College London\\
+MSc Analogue and Digital\\Integrated Circuit Design\\
+Email: jm8415@ic.ac.uk}}
 
 % conference papers do not typically use \thanks and this command
 % is locked out in conference mode. If really needed, such as for
@@ -409,9 +447,7 @@ IEEEtran.cls version 1.8b and later.
 % (should never be an issue)
 I wish you the best of success.
 
-\hfill mds
- 
-\hfill August 26, 2015
+\hfill March 03, 2017
 
 \subsection{Subsection Heading Here}
 Subsection text here.
