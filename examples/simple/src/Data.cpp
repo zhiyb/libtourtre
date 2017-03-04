@@ -98,7 +98,7 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 		#else
 		infile.read( reinterpret_cast<char*>(charData) , totalSize );
 		#endif
-
+#pragma omp simd
 		for (uint i = 0; i < totalSize; i++) {
 			data[i] = static_cast<DataType>( charData[i] );
 		}
@@ -115,6 +115,7 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 		infile.read( reinterpret_cast<char*>(intData) , totalSize * 2 );
 		#endif
 
+#pragma omp simd
 		for (uint i = 0; i < totalSize; i++) {
 			data[i] = static_cast<DataType>( intData[i] );
 		}
@@ -147,6 +148,7 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 		infile.read( reinterpret_cast<char*>(doubleData) , totalSize * 8 );
 		#endif
 
+#pragma omp simd
 		for (uint i = 0; i < totalSize; i++) {
 			data[i] = static_cast<DataType>( doubleData[i] );
 		}
