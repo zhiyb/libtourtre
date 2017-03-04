@@ -65,6 +65,7 @@ ct_checkContext ( ctContext * ctx );
 ctContext* 
 ct_init
 (   size_t  numVerts,
+    size_t  maxValence,
     size_t  *totalOrder, 
     double  (*value)( size_t v, void* ),
     size_t  (*neighbors)( size_t v, size_t* nbrs, void* ),
@@ -77,7 +78,8 @@ ct_init
     memset(ctx, 0, sizeof(ctContext) );
     
     /* set default values */
-    ctx->maxValence = 256;
+    //ctx->maxValence = 256;
+    ctx->maxValence = maxValence;
     ctx->arcAlloc = ct_arcMalloc;
     ctx->arcFree = ct_arcFree;
     ctx->nodeAlloc = ct_nodeMalloc;
@@ -226,7 +228,7 @@ ct_checkContext(ctx);
         i = ctx->totalOrder[itr];
         
         iComp = NULL;
-#if 10
+#if 1
         numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
 #else
         numNbrs = *ptr++;
@@ -251,14 +253,14 @@ ct_checkContext(ctx);
                     } else if (numNbrComps == 1) {
                         /* create new component */
                         ctComponent * newComp = ctComponent_new(type); 
-#pragma omp sections
-{
+//#pragma omp sections
+//{
                         {                        
                         newComp->birth = i;
                         ctComponent_addPred( newComp, iComp );
                         ctComponent_addPred( newComp, jComp );
                         }
-#pragma omp section
+//#pragma omp section
                         /* finish the two existing components */
                         {
                         iComp->death = i;
@@ -269,7 +271,7 @@ ct_checkContext(ctx);
                         jComp->succ = newComp;
                         ctComponent_union(jComp, newComp);
                         }
-}
+//}
                         next[ jComp->last ] = i;
 
                         iComp = newComp;
