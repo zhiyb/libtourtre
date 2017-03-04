@@ -549,6 +549,7 @@ Data comparison functions \texttt{Data::less} and \texttt{Data::greater}...
 \subsection{Parallelise \texttt{createGraph}}
 
 Using openmp to parallel \texttt{sort()} in \texttt{Mesh::createGraph}...
+As the result shown on the gprof, the execution time of the \texttt{std::sort} occupies a large percentage of the whole program running time. Paralleling the \texttt{sort} function is an perfect technique to increasing the performance of \texttt{simple}. Finding a exist paralleled sort library from large company is more effective and efficiency approach than building up own paralleled sort library. 
 
 \subsection{Parallelise \texttt{findNeighbours}}
 
