@@ -6,3 +6,5 @@ gmon.out
 *.time
 *.gprof
 *.swp
+*.data
+*.data.old

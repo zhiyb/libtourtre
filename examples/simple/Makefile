@@ -30,7 +30,7 @@ COMPILE_FLAGS = -std=c++11 -fopenmp -O3 $(DEBUG_FLAGS)
 LIB_DIRS = -L$(TOURTRE_DIR)
 
 #linker flags
-LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -ltbb $(DEBUG_FLAGS) -fopenmp
+LINK_FLAGS = $(TOURTRE_DIR)/libtourtre.a -lz -fopenmp $(DEBUG_FLAGS)
 
 #preprocessor defines
 DEFINES = -DUSE_ZLIB
@@ -61,7 +61,7 @@ $(TOURTRE_DIR)/libtourtre.a:
 
 .PHONY: test
 test:
-	$(MAKE) all
+	$(MAKE) all DEBUG_FLAGS="-O3"
 	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
 
 .PHONY: gdb
@@ -77,6 +77,15 @@ gprof:
 	$(MAKE) all DEBUG_FLAGS="-pg -g -O2"
 	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).gprof.log
 	gprof $(EXE) > $(EXE).gprof
+	$(MAKE) clean
+
+.PHONY: perf
+perf:
+	$(MAKE) clean
+	$(MAKE) all DEBUG_FLAGS="-g -O3"
+	perf stat -d ./$(EXE) -c -i $(DATA) 2>&1 | tee $(EXE).perf.log
+	perf record ./$(EXE) -c -i $(DATA)
+	perf report
 	$(MAKE) clean
 
 AVERAGE	?= 6

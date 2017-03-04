@@ -212,10 +212,18 @@ ct_checkContext(ctx);
 
 #if 0
     size_t *numNbr = (size_t *)malloc(sizeof(size_t) * its), *ptr = numNbr;
-    for ( itr = start; itr != end; itr += inc ) {
-        i = ctx->totalOrder[itr];
-        *ptr++ = (*(ctx->neighbors))(i, nptr, ctx->cbData);
-        nptr += ctx->maxValence;
+    //for ( itr = start; itr != end; itr += inc ) {
+    unsigned int idx, bs = its / 256;
+    //fprintf(stderr, "its: %lu, bs: %u\n", its, bs);
+#pragma omp parallel for
+    for (itr = 0; itr < its; itr++) {
+//    for (idx = 0; idx < 256; idx++) {
+//        for (itr = idx * bs; itr != ((idx + 1) * bs); itr++) {
+            size_t i = ctx->totalOrder[(int)start + (int)itr * inc];
+            *(ptr + itr) = (*(ctx->neighbors))(i, nptr + itr * ctx->maxValence, ctx->cbData);
+            //nptr += ctx->maxValence;
+//        }
+//    }
     }
 
     ptr = numNbr;
