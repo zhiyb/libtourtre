@@ -446,9 +446,11 @@ and a sample application named "simple". The aim of the exercise is to speed up 
 
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-\IEEEPARstart{T}{his} exercise aims to make the algorithm for computing minimal contour tree faster. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered, and partially parallelised. The total execution time is decreased by 40\%. 
+This exercise aims to make the algorithm for computing minimal contour tree faster. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered, and partially parallelised. The total execution time is decreased by $40\%$.
 
-\hfill March 03, 2017
+libtourtre \cite{libtourtre}
+
+\hfill \today
 
 \section{Evaluation platform}
 
@@ -464,8 +466,6 @@ RAM:	16199520 kiB
 
 Disk:	OCZ-VERTEX4 SSD
 
-Reasons... Linux server, no GUI, little overhead, access anywhere, easy configuration...
-
 Other platforms...
 
 \subsection{Software platform}
@@ -476,15 +476,29 @@ Kernel:	Linux 3.16.0-4-amd64
 
 Compiler:	gcc (Debian 4.9.2-10)
 
+Reasons... Linux server, no GUI, little overhead, access anywhere, easy configuration...
+
 \subsection{Performance analysis tools}
 
-gprof;
+\subsubsection{gprof}
 
-valgrind(cachegrind);
+\cite{graham1982gprof}
 
-Linux perf; (!)
+\subsubsection{valgrind(cachegrind)}
 
-Intel VTune
+valgrind \cite{nethercote2003valgrind}
+
+cachegrind \cite{seward2004cachegrind}
+
+\subsubsection{Linux perf}
+
+\cite{de2010new}
+
+(!)
+
+\subsubsection{Intel VTune}
+
+\cite{malladi2009using}
 
 \section{Analysis}
 
@@ -559,6 +573,8 @@ Extract...
 
 Reduce memory usage...
 
+Using openmp \cite{dagum1998openmp}...
+
 Manual task blocks...
 
 Failure, not effective.
@@ -580,6 +596,8 @@ Using SIMD intrinsics...
 \subsection{Remove redundant \texttt{memset}}
 
 Redundant \texttt{memset} with \texttt{calloc}...
+
+\texttt{calloc} faster than \texttt{malloc}, why...
 
 \section{Group work}
 
@@ -696,15 +714,9 @@ GPU acceleration not effective (pointers? linked lists?)
 
 
 % use section* for acknowledgment
-\section*{Acknowledgment}
+%\section*{Acknowledgment}
 
-* TO BE REMOVED *
-
-The authors would like to thank...
-
-IEEEtran \cite{IEEEhowto:IEEEtranpage}
-
-
+%The authors would like to thank...
 
 % trigger a \newpage just before the given reference
 % number - used to balance the columns on the last page
