@@ -420,7 +420,8 @@ Email: jm8415@ic.ac.uk}}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-The abstract goes here.
+The course work is based on a contour tree library called "tourtre",
+and a sample application named "simple". The aim of the exercise is to speed up the program and evaluate the performance of it. This short report will represent the result and have a small discussion and explanation. 
 \end{abstract}
 
 % no keywords
@@ -442,10 +443,10 @@ The abstract goes here.
 
 \section{Introduction}
 % no \IEEEPARstart
-Introduction to this exercise...
+
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-I wish you the best of success.
+\IEEEPARstart{T}{his} exercise aims to make the algorithm for computing minimal contour tree faster. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered, and partially parallelised. The total execution time is decreased by 40\%. 
 
 \hfill March 03, 2017
 
@@ -482,6 +483,8 @@ gprof;
 valgrind(cachegrind);
 
 Linux perf; (!)
+
+Intel VTune
 
 \section{Analysis}
 
