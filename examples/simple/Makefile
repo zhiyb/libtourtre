@@ -14,6 +14,8 @@ DATA	= sampledata/CThead-2by2.256x512x226.uint16
 
 GDB_DATA	= sampledata/bucky.32x32x32.uint8
 
+TEST_DATA	= $(DATA)
+
 #name of the executable
 EXE = simple
 
@@ -62,7 +64,7 @@ $(TOURTRE_DIR)/libtourtre.a:
 .PHONY: test
 test:
 	$(MAKE) all DEBUG_FLAGS="-O3"
-	(time ./$(EXE) -c -i $(DATA)) 2>&1 | tee $(EXE).log
+	(time ./$(EXE) -c -i $(TEST_DATA)) 2>&1 | tee $(EXE).log
 
 .PHONY: gdb
 gdb:
