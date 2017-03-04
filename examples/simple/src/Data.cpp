@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
-
+#include <xmmintrin.h>
 #if USE_ZLIB
 #include <zlib.h>
 #endif
@@ -88,19 +88,22 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 	#endif
 
 	data = new DataType[totalSize];
+	__m128* pSrc1 = (__m128*) data;
 
 	if ( strcmp(typeP,"uint8") == 0 ) {
 
 		unsigned char * charData = new unsigned char [totalSize];
-
+		
+		__m128* pSrc2 = (__m128*) charData;
 		#if USE_ZLIB
 		gzread( zinfile , reinterpret_cast<char*>(charData) , totalSize );
 		#else
 		infile.read( reinterpret_cast<char*>(charData) , totalSize );
 		#endif
-#pragma omp simd
-		for (uint i = 0; i < totalSize; i++) {
-			data[i] = static_cast<DataType>( charData[i] );
+// #pragma ivdep
+		for (uint i = 0; i < totalSize/16; i++) {
+			// data[i] = static_cast<DataType>( charData[i] );
+			*pSrc1++ = *pSrc2++;
 		}
 
 		delete[] charData;
@@ -109,15 +112,18 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 
 		unsigned short int * intData = new unsigned short int [totalSize];
 
+		__m128* pSrc3 = (__m128*) intData;
 		#if USE_ZLIB
 		gzread( zinfile , reinterpret_cast<char*>(intData) , totalSize * 2 );
 		#else
 		infile.read( reinterpret_cast<char*>(intData) , totalSize * 2 );
 		#endif
 
-#pragma omp simd
+// #pragma ivdep
 		for (uint i = 0; i < totalSize; i++) {
 			data[i] = static_cast<DataType>( intData[i] );
+			// *pSrc1++ = *pSrc3++;
+
 		}
 
 		delete[] intData;
@@ -126,14 +132,16 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 
 		float * floatData = new float [totalSize];
 
+		__m128* pSrc4 = (__m128*) floatData;
 		#if USE_ZLIB
 		gzread( zinfile , reinterpret_cast<char*>(floatData) , totalSize * 4 );
 		#else
 		infile.read( reinterpret_cast<char*>(floatData) , totalSize * 4 );
 		#endif
 
-		for (uint i = 0; i < totalSize; i++) {
-			data[i] = static_cast<DataType>( floatData[i] );
+		for (uint i = 0; i < totalSize/4; i++) {
+			// data[i] = static_cast<DataType>( floatData[i] );
+			*pSrc1++ = *pSrc4++;
 		}
 
 		delete[] floatData;
@@ -142,15 +150,17 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 
 		double * doubleData = new double [totalSize];
 
+		__m128* pSrc5 = (__m128*) doubleData;
 		#if USE_ZLIB
 		gzread( zinfile , reinterpret_cast<char*>(doubleData) , totalSize * 8 );
 		#else
 		infile.read( reinterpret_cast<char*>(doubleData) , totalSize * 8 );
 		#endif
-
-#pragma omp simd
-		for (uint i = 0; i < totalSize; i++) {
-			data[i] = static_cast<DataType>( doubleData[i] );
+		
+// #pragma ivdep
+		for (uint i = 0; i < totalSize/2; i++) {
+			// data[i] = static_cast<DataType>( doubleData[i] );
+			*pSrc1++ = *pSrc5++;
 		}
 
 		delete[] doubleData;
