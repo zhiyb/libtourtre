@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
-
+#include <xmmintrin.h>
 #if USE_ZLIB
 #include <zlib.h>
 #endif
@@ -88,19 +88,22 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 	#endif
 
 	data = new DataType[totalSize];
+	__m128i *pDst = (__m128i *) data;
 
 	if ( strcmp(typeP,"uint8") == 0 ) {
 
 		unsigned char * charData = new unsigned char [totalSize];
-
+		
 		#if USE_ZLIB
 		gzread( zinfile , reinterpret_cast<char*>(charData) , totalSize );
 		#else
 		infile.read( reinterpret_cast<char*>(charData) , totalSize );
 		#endif
 
-		for (uint i = 0; i < totalSize; i++) {
-			data[i] = static_cast<DataType>( charData[i] );
+		__m128i *pSrc = (__m128i *) charData;
+		for (uint i = 0; i < totalSize / 16; i++) {
+			//data[i] = static_cast<DataType>( charData[i] );
+			*pDst++ = *pSrc++;
 		}
 
 		delete[] charData;
@@ -115,9 +118,15 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 		infile.read( reinterpret_cast<char*>(intData) , totalSize * 2 );
 		#endif
 
-		for (uint i = 0; i < totalSize; i++) {
-			data[i] = static_cast<DataType>( intData[i] );
+		__m128i *pSrc = (__m128i *) intData;
+		for (uint i = 0; i < totalSize / 16; i++) {
+			//data[i] = static_cast<DataType>( intData[i] );
+			__m128i src1 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
+			__m128i src2 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
+			*pDst++ = _mm_packus_epi16(src1, src2);
 		}
+		//fprintf(stderr, "in: %llx, ", *(uint64_t *)intData);
+		//fprintf(stderr, "out: %llx\n", *(uint64_t *)data);
 
 		delete[] intData;
 
@@ -146,7 +155,7 @@ bool Data::load(const char * file, char * prefix, bool * compressed) {
 		#else
 		infile.read( reinterpret_cast<char*>(doubleData) , totalSize * 8 );
 		#endif
-
+		
 		for (uint i = 0; i < totalSize; i++) {
 			data[i] = static_cast<DataType>( doubleData[i] );
 		}

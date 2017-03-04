@@ -75,7 +75,7 @@ ct_init
     ctContext * ctx = (ctContext*) malloc(sizeof(ctContext));
     
     /* zero-out the struct */
-    memset(ctx, 0, sizeof(ctContext) );
+    //memset(ctx, 0, sizeof(ctContext) );
     
     /* set default values */
     //ctx->maxValence = 256;
@@ -99,18 +99,10 @@ ct_init
     ctx->joinRoot = NULL;
     ctx->splitRoot = NULL;
    
-    
     ctx->joinComps = (ctComponent**)calloc( sizeof(ctComponent*), ctx->numVerts );
-    memset(ctx->joinComps,0x0,sizeof(ctComponent*)*ctx->numVerts );
-    
     ctx->splitComps = (ctComponent**)calloc( sizeof(ctComponent*), ctx->numVerts );
-    memset(ctx->splitComps,0x0,sizeof(ctComponent*)*ctx->numVerts );
-
     ctx->nextJoin = (size_t *)calloc( sizeof(size_t), ctx->numVerts );
-    memset(ctx->nextJoin,CT_NIL,sizeof(size_t)*ctx->numVerts );
-    
     ctx->nextSplit = (size_t *)calloc( sizeof(size_t), ctx->numVerts );
-    memset(ctx->nextSplit,CT_NIL,sizeof(size_t)*ctx->numVerts );
 
     ctx->arcMap = 0;
     ctx->arcMapOwned = 1;
@@ -118,6 +110,10 @@ ct_init
     ctx->branchMapOwned = 1;
     ctx->branchMap = 0;
     ctx->tree = 0;
+
+    ctx->procVertex = NULL;
+    ctx->mergeArcs = NULL;
+    ctx->priority = NULL;
     
     return ctx;
 }

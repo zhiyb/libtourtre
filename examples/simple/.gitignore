@@ -8,3 +8,4 @@ gmon.out
 *.swp
 *.data
 *.data.old
+*.out.*
