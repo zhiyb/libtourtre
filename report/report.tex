@@ -466,8 +466,16 @@ RAM:	16199520 kiB
 
 Disk:	OCZ-VERTEX4 SSD
 
-Other platforms...
 
+Secondary platform
+
+Motherboard:	ASUS Z170-DELUXE Desktop Motherboard
+
+CPU:	INTEL Intel® Core™ i7-6700K Processor (8M Cache, up to 4.20 GHz)
+
+RAM:	16199520 kiB
+
+Disk:	Crucial\_CT256MX100 SSD (RAID0)
 \subsection{Software platform}
 
 OS:	Debian GNU/Linux 8 (jessie)
@@ -529,10 +537,19 @@ Profilers... Profiling method... (Makefile rules?)
 \texttt{Mesh::createGraph} function...
 
 \section{Optimisations and evaluations}
+The optimisations are divided into multiple parts, the different effect of enhancement is shown in the next \fref{fig:log}. 
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=\columnwidth]{data_log}
+	\caption{The Result of Optimisation}
+	\label{fig:log}
+\end{figure}
+
 
 \subsection{Result validation}
 
 Run multiple times, check output...
+
 
 \subsection{C++ library}
 
@@ -557,9 +574,7 @@ Compiler optimisations...
 
 \subsection{Inline simple functions}
 
-Data comparison functions \texttt{Data::less} and \texttt{Data::greater}...
-
-\texttt{Mesh::getNeighbours}...
+Data comparison functions \texttt{Data::less} and \texttt{Data::greater} are moved into header file instead of writing in source file. In addition, the \texttt{Mesh::getNeighbours} are put inline as well. Because those three functions are small and called frequently. Putting them as inline functions will gain higher efficiency. 
 
 \subsection{Parallelise \texttt{createGraph}}
 
@@ -597,8 +612,10 @@ Using SIMD intrinsics...
 \subsection{Remove redundant \texttt{memset}}
 
 Redundant \texttt{memset} with \texttt{calloc}...
+The function \texttt{calloc} is used to allocate customised size of memory and initialise all bits inside this part of memory into 0. However, \texttt{memset} has the same purpose as the \texttt{calloc}, so it is no need to set all the bits to "0" again. After removing the \texttt{memset}, the total time is decreased by \%0.82 as \fref{fig:log} shows. 
 
-\texttt{calloc} faster than \texttt{malloc}, why...
+Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}, it will not influence the result but the speed is decreased. Although, \texttt{calloc()} will do the memory allocation and memory initialisation together, it is faster than \texttt{malloc()}. The reason for that is \texttt{calloc()} will do less work because it can skip \texttt{memset()} entirely, also it can even not allocate any memory in some cases. Finally, after multiple times testing, \cite{calloc} is not replaced by \texttt{malloc}
+%\texttt{calloc} faster than \texttt{malloc}, why...
 
 \section{Group work}
 
