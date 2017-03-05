@@ -617,6 +617,8 @@ The function \texttt{calloc} is used to allocate customised size of memory and i
 Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}, it will not influence the result but the speed is decreased. Although, \texttt{calloc()} will do the memory allocation and memory initialisation together, it is faster than \texttt{malloc()}. The reason for that is \texttt{calloc()} will do less work because it can skip \texttt{memset()} entirely, also it can even not allocate any memory in some cases. Finally, after multiple times testing, \cite{calloc} is not replaced by \texttt{malloc}
 %\texttt{calloc} faster than \texttt{malloc}, why...
 
+\subsection{Checking Results with VTune}
+
 \section{Group work}
 
 You may work in groups of two or three if you wish, but your report must include an explicit statement of who did what.
