@@ -618,6 +618,20 @@ Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}, it
 %\texttt{calloc} faster than \texttt{malloc}, why...
 
 \subsection{Checking Results with VTune}
+The last step is checking the achievement of the optimisation. The tool for checking performance is VTune from Intel. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, there are several functions are paralleled and the execution time is decreased significantly. 
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\columnwidth]{noopt_vtune}
+	\caption{The Program without Optimisation}
+	\label{fig:noopt}
+\end{figure}
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=\columnwidth]{opt_vtune}
+	\caption{The Final Optimised Program}
+	\label{fig:opt}
+\end{figure}
+
 
 \section{Group work}
 
