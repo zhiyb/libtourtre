@@ -168,8 +168,13 @@ ctArc * ct_sweepAndMerge( ctContext * ctx )
 {
 ct_checkContext(ctx);
 {
-    ct_joinSweep(ctx);
+#pragma omp parallel sections    
+{    
+#pragma omp section
+    {ct_joinSweep(ctx);}
+#pragma omp section
     ct_splitSweep(ctx);
+}   
     ct_augment( ctx );
     return ctx->tree=ct_merge( ctx );
 }
@@ -196,6 +201,7 @@ ct_checkContext(ctx);
     int numExtrema = 0;
     int numSaddles = 0;
     size_t its = inc > 0 ? (end - start) / inc : (start - end) / -inc;
+
 #if 0
     size_t * nbrs = (size_t *)calloc ( ctx->maxValence * its, sizeof(size_t) ), *nptr = nbrs;
     if (nbrs == 0) {
@@ -284,13 +290,18 @@ ct_checkContext(ctx);
 
                         numSaddles++;
                         numNbrComps++;
+
                         
                     } else {
                         /*finish existing arc */
                         jComp->death = i;
                         jComp->succ = iComp;
-                        ctComponent_union(jComp,iComp);
-                        ctComponent_addPred(iComp,jComp);
+//#pragma omp sections
+{
+                        {ctComponent_union(jComp,iComp);}
+//#pragma omp section
+                        {ctComponent_addPred(iComp,jComp);}
+}
                         next[jComp->last] = i;
                     }
                 }
@@ -299,7 +310,8 @@ ct_checkContext(ctx);
 #if 0
         nptr += ctx->maxValence;
 #endif
-
+        if (numNbrComps > maxnum)
+            maxnum = numNbrComps;
         if (numNbrComps == 0) {
             /* this was a local maxima. create a new component */
             iComp = ctComponent_new(type);
@@ -310,7 +322,9 @@ ct_checkContext(ctx);
         } else if (numNbrComps == 1) {
             /* this was a regular point. set last */
             iComp->last = i;
-        }
+            count_1++;
+        } 
+    
 
     } /* for each vertex */
 
@@ -320,7 +334,6 @@ ct_checkContext(ctx);
 
     /* terminate path */
     next[i] = CT_NIL;
-
     free(nbrs);
     return iComp;
 }
