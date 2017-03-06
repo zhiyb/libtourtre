@@ -456,7 +456,7 @@ libtourtre \cite{libtourtre}
 
 \subsection{Hardware platform}
 
-Primary platform:
+There are two testing platform used in this exercise. The primary platform is:
 
 Motherboard:	SABERTOOTH 990FX R2.0
 
@@ -467,7 +467,7 @@ RAM:	16199520 kiB
 Disk:	OCZ-VERTEX4 SSD
 
 
-Secondary platform
+Secondary platform is used to run VTune:
 
 Motherboard:	ASUS Z170-DELUXE Desktop Motherboard
 
@@ -476,7 +476,7 @@ CPU:	INTEL Intel® Core™ i7-6700K Processor (8M Cache, up to 4.20 GHz)
 RAM:	16199520 kiB
 
 Disk:	Crucial\_CT256MX100 SSD (RAID0)
-\subsection{Software platform}
+\subsection{Software platform for primary hardware configuration}
 
 OS:	Debian GNU/Linux 8 (jessie)
 
@@ -484,7 +484,7 @@ Kernel:	Linux 3.16.0-4-amd64
 
 Compiler:	gcc (Debian 4.9.2-10)
 
-Reasons... Linux server, no GUI, little overhead, access anywhere, easy configuration...
+This hardware set is build as a customised Linux server without GUI. It has little overhead and it can be accessed anywhere with ssh. In addition, it is convenient to configuration. 
 
 \subsection{Performance analysis tools}
 
@@ -650,7 +650,9 @@ ctArc * ct_sweepAndMerge( ctContext * ctx )
 
 
 \subsection{Checking Results with VTune}
-The last step is checking the achievement of the optimisation. The tool for checking performance is VTune from Intel. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, most of functions are paralleled and the execution time is decreased significantly. 
+VTune was run in the second platform. The first reason is that VTune is a large program so that it take long time to set up. However the primary platform need to have little overhead in order to get accuracy result, so the VTune is install on secondary platform. Furthermore, it is useful to compare the same program running on different processors. After the optimisation, the execution time of program \texttt{simple} is 4.163s on Intel platform. The difference between the time is due to the different processor architectures. The IPC of program running on Intel platform is much higher than AMD platform. 
+
+The last step is checking the achievement of the optimisation. In order to see a obvious result, the largest dataset \texttt{CThead-2by4.256x512x452.uint16} is chosen as the input of program tested by VTune. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, most of functions are paralleled and the execution time is decreased significantly. 
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=\columnwidth]{noopt_vtune}
