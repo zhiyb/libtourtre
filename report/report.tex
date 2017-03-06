@@ -609,7 +609,7 @@ The loop body only executed once...
 
 Using SIMD intrinsics...
 The load progress can be implemented by SIMD instructions. The \texttt{Data:load} can be optimised by SIMD intrinsics shown in \cite{advnotes}. Firstly, the input data is \texttt{intData} which contain multiple chars (8 bits), however the size of each element from \texttt{intData} is 16 bits. The first 8 bits are invalid. As the result, \texttt{src1, src2} are declared as temporary container for the data. Also, \texttt{\_\_mm\_and\_si128()} will compute the bitwise AND of 128-bit value in two arguments, so that the invalid bit are set to 0. This progress is a preparation for \texttt{\_\_mm\_packus\_epi16()}. This function will pack the 16 signed 16-bit integers from 2 inputs into 8-bit unsigned integers and saturates. That is the reason why set all the invalid bits to 0. In total, there are 16 chars in side one \texttt{pDst}, which means run one time of the loop will load 16 elements, so the times of the loop should be \texttt{totalSize / 16}.
-\begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:dotp_tb]
+\begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:mem]
 data = new DataType[totalSize];
 __m128i *pDst = (__m128i *) data;
 ...
@@ -630,8 +630,28 @@ The function \texttt{calloc} is used to allocate customised size of memory and i
 Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}, it will not influence the result but the speed is decreased. Although, \texttt{calloc()} will do the memory allocation and memory initialisation together, it is faster than \texttt{malloc()}. The reason for that is \texttt{calloc()} will do less work because it can skip \texttt{memset()} entirely, also it can even not allocate any memory in some cases. Finally, after multiple times testing, \cite{calloc} is not replaced by \texttt{malloc}
 %\texttt{calloc} faster than \texttt{malloc}, why...
 
+\subsection{Parallel \texttt{ct\_sweepAndMerge()}}
+The longest time consumption is on function \texttt{sweep()}. This function was called twice by two separate functions named as \texttt{ct\_joinSweep()} and \texttt{ct\_splitSweep()}. The argument of those two functions is \texttt{ctx} and when they call \texttt{ct\_sweep}, all the parameters transferred to \texttt{ct\_sweep} are independent which means \texttt{ct\_joinSweep()} and \texttt{ct\_sliptSweep()} can be paralleled. In order to gain better performance, \texttt{parallel sections} are implemented inside of \texttt{ct\_sweepAndMerge} as \lref{lst:secs} shows. The optimisation saves huge part of time as \fref{fig:log} describes. It decreases more than 15\% time compared with last step. 
+\begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:secs]
+ctArc * ct_sweepAndMerge( ctContext * ctx )
+{
+	ct_checkContext(ctx);
+	
+#pragma omp parallel sections    
+{    
+#pragma omp section
+    {ct_joinSweep(ctx);}
+#pragma omp section
+    {ct_splitSweep(ctx);}
+}   
+    ct_augment( ctx );
+    return ctx->tree=ct_merge( ctx );
+}
+\end{lstlisting}
+
+
 \subsection{Checking Results with VTune}
-The last step is checking the achievement of the optimisation. The tool for checking performance is VTune from Intel. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, there are several functions are paralleled and the execution time is decreased significantly. 
+The last step is checking the achievement of the optimisation. The tool for checking performance is VTune from Intel. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, most of functions are paralleled and the execution time is decreased significantly. 
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=\columnwidth]{noopt_vtune}
