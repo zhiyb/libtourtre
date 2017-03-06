@@ -608,6 +608,19 @@ The loop body only executed once...
 \subsection{SIMD implementation of \texttt{Data::load}}
 
 Using SIMD intrinsics...
+The load progress can be implemented by SIMD instructions. The \texttt{Data:load} can be optimised by SIMD intrinsics shown in \cite{advnotes}. Firstly, the input data is \texttt{intData} which contain multiple chars (8 bits), however the size of each element from \texttt{intData} is 16 bits. The first 8 bits are invalid. As the result, \texttt{src1, src2} are declared as temporary container for the data. Also, \texttt{\_\_mm\_and\_si128()} will compute the bitwise AND of 128-bit value in two arguments, so that the invalid bit are set to 0. This progress is a preparation for \texttt{\_\_mm\_packus\_epi16()}. This function will pack the 16 signed 16-bit integers from 2 inputs into 8-bit unsigned integers and saturates. That is the reason why set all the invalid bits to 0. In total, there are 16 chars in side one \texttt{pDst}, which means run one time of the loop will load 16 elements, so the times of the loop should be \texttt{totalSize / 16}.
+\begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:dotp_tb]
+data = new DataType[totalSize];
+__m128i *pDst = (__m128i *) data;
+...
+__m128i *pSrc = (__m128i *) intData;
+for (uint i = 0; i < totalSize / 16; i++) {
+	//data[i] = static_cast<DataType>( intData[i] );
+	__m128i src1 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
+	__m128i src2 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
+	*pDst++ = _mm_packus_epi16(src1, src2);
+		}
+\end{lstlisting}
 
 \subsection{Remove redundant \texttt{memset}}
 
