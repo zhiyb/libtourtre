@@ -209,7 +209,7 @@ ct_checkContext(ctx);
         exit(1);
     }
 #else
-    size_t * nbrs = (size_t *)calloc ( ctx->maxValence, sizeof(size_t) );
+    size_t * nbrs = (size_t *)malloc ( ctx->maxValence * sizeof(size_t) );
 #endif
 
 #if 0
@@ -310,8 +310,6 @@ ct_checkContext(ctx);
 #if 0
         nptr += ctx->maxValence;
 #endif
-        if (numNbrComps > maxnum)
-            maxnum = numNbrComps;
         if (numNbrComps == 0) {
             /* this was a local maxima. create a new component */
             iComp = ctComponent_new(type);
@@ -322,7 +320,6 @@ ct_checkContext(ctx);
         } else if (numNbrComps == 1) {
             /* this was a regular point. set last */
             iComp->last = i;
-            count_1++;
         } 
     
 
@@ -532,7 +529,6 @@ ct_checkContext(ctx);
     ct_queueLeaves(leafQ, minusInf, &splitMap);
 
     arcMap = ctx->arcMap = (ctArc**) calloc( ctx->numVerts, sizeof(ctArc*) );
-    memset( (void*)ctx->arcMap, 0, sizeof(ctArc*)*ctx->numVerts );
 
     while(1) {
         assert(! ctLeafQ_isEmpty(leafQ) );
@@ -727,7 +723,6 @@ if ( ctx->arcMap == 0 ) {
     {   /* create branch map */
         size_t i;
         ctx->branchMap = (ctBranch**)calloc(ctx->numVerts,sizeof(ctBranch*));
-        memset( (void*)ctx->branchMap, 0, sizeof(ctBranch*)*ctx->numVerts );
         for ( i = 0; i < ctx->numVerts; i++) {
             ctArc * a = ctx->arcMap[i];
             assert(a);
