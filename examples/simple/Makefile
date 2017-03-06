@@ -85,7 +85,7 @@ gprof:
 perf:
 	$(MAKE) clean
 	$(MAKE) all DEBUG_FLAGS="-g -O3"
-	perf stat -d ./$(EXE) -c -i $(DATA) 2>&1 | tee $(EXE).perf.log
+	perf stat ./$(EXE) -c -i $(DATA) 2>&1 | tee $(EXE).perf.log
 	perf record ./$(EXE) -c -i $(DATA)
 	perf report
 	$(MAKE) clean
