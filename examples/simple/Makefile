@@ -10,7 +10,7 @@
 # Sample data
 DATA	= sampledata/CThead.256x256x113.uint16
 DATA	= sampledata/CThead-2by2.256x512x226.uint16
-DATA	= sampledata/CThead-2by4.256x512x452.uint16
+#DATA	= sampledata/CThead-2by4.256x512x452.uint16
 
 GDB_DATA	= sampledata/bucky.32x32x32.uint8
 
