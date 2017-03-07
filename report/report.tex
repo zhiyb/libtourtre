@@ -350,7 +350,7 @@ and a sample application named "simple". The aim of the exercise is to speed up 
 
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-This exercise aims to make the algorithm for computing minimal contour tree (libtourtre \cite{libtourtre}) as fast as possible. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered, and partially parallelised. The total execution time is decreased by $55.62 \%$.
+This exercise aims to accelerate the minimal contour tree (libtourtre \cite{libtourtre}) algorithm. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered and partially paralleled. As a result, the total execution time is reduced by $56.62 \%$.
 
 \hfill \today
 
@@ -510,16 +510,17 @@ The original implementation of \texttt{find6Neighbors} and \texttt{find18Neighbo
  }
 \end{lstlisting}
 
-Further analysing of the \texttt{libtourtre} code shows the order of checks have no effect on the final result. By re-ordering the neighbour checks, ensuring only minimal coordinate changes to \texttt{xyz} dimensions exist between adjacent checks, another minor speed up of $1.55 \%$ was obtained. Manual coordinate check combination was also attempted, a similar speed up was obtained. This suggests the compiler was optimising the code as intended. To keep the code straightforward, the uncombined implementation was kept.
+Further analysing of the \texttt{libtourtre} code shows the order of checks have no effect on the final result. By re-ordering the neighbour checks, ensuring only minimal coordinate changes in \texttt{xyz} dimensions exist between adjacent checks, another minor speed up of $1.55 \%$ was obtained. Manual coordinate check combination was also attempted, a similar speed up was obtained. This suggests the compiler was optimising the code as expected. To keep the code straightforward, the uncombined implementation was kept.
 
 \subsection{Inline simple functions}
 
-Data comparison functions \texttt{Data::less} and \texttt{Data::greater} were moved into the header file \texttt{Data.h} instead of their original source file \texttt{Data.cpp}. In addition, the \texttt{Mesh::getNeighbours} function was flagged in-line as well. Those functions are short and simple, but were called frequently. Implement them as in-line functions will remove the function call process and enables further optimisations, at the cost of potentially larger code size. An additional speed up of $6.67 \%$ was obtained by the increased efficiency. 
+Data comparison functions \texttt{Data::less} and \texttt{Data::greater} were moved into the header file \texttt{Data.h} instead of their original source file \texttt{Data.cpp}. In addition, the \texttt{Mesh::getNeighbours} function was flagged in-line as well. Those functions are short and simple, but were called frequently. Implement them as in-line functions will remove the function call process and enable further optimisations, at the cost of potentially larger binary size. An additional speed up of $6.67 \%$ was obtained due to the increased efficiency. 
 
 \subsection{Parallelise \texttt{createGraph}}
 
 Using openmp to parallel \texttt{sort()} in \texttt{Mesh::createGraph}...
-As the result shown on the gprof, the execution time of the \texttt{std::sort} occupies a large percentage of the whole program running time. Paralleling the \texttt{sort} function is an perfect technique to increasing the performance of \texttt{simple}. Finding a exist paralleled sort library from large company is more effective and efficiency approach than building up own paralleled sort library. \cite{parallelsort} The library has a function named as \texttt{pss::parallel\_stable\_sort()}. The arguments input the function are the same as the \texttt{std::sort()}. 
+As the result shown on the gprof, the execution time of the \texttt{std::sort} occupies a large percentage of the whole program running time. Paralleling the \texttt{sort} function is a perfect technique to increasing the performance of \texttt{simple}. Using an existing paralleled sort library \cite{parallelsort} is a more effective and efficiency approach. The library has a function named as \texttt{pss::parallel\_stable\_sort()} and the function prototype is the same as the \texttt{std::sort()}. So it can be replaced directly when using the library.
+
 
 \subsection{Parallelise \texttt{ct\_sweep}}
 
@@ -564,9 +565,9 @@ An attempt to parallelise the \texttt{findNeighbors} function inside \texttt{ct\
 
 It is possible to extract \texttt{ctx->neighbors} function call to a separate loop. By doing so, a large memory space must be allocated to store all the results of \texttt{nbrs} from every iteration. In the original implementation, the \texttt{maxValence} value was kept at the default value of 256. However, this results in a memory allocation of over $60 GiB$ for the sample dataset, which is inefficient to do and impossible on the primary testing platform.
 
-To address the memory issue, the \texttt{maxValence} parameter was changed to 18 during initialisation, which is the maximum possible number of results generated from the \texttt{neighbors} function. This results in a far more sensible memory allocation size for the same dataset, also possible to execute on the primary platform.
+To address the memory issue, the \texttt{maxValence} parameter was changed to 18 during initialisation, which is the maximum possible number of results generated from the \texttt{neighbors} function. This results in a far more practical memory allocation size for the same dataset, also the memory allocation becomes possible to be executed on the primary platform.
 
-The \texttt{openmp parallel for} directive was then used for paralleling the extracted loop. However, this parallelisation implementation is not worthwhile. The execution time becomes even longer then the unoptimised original version. Manual partition of task blocks was also attempted, without any noticeable improvement. A manual block size of $500 k$ gives a relatively better performance, the result is shown on the last line of \fref{fig:log}.
+The \texttt{openmp parallel for} directive was then used for paralleling the extracted loop. However, this parallelisation implementation is not worthwhile. The execution time becomes even longer than the unoptimised original version. Manual partition of task blocks was also attempted, without any noticeable improvement. A manual block size of $500 k$ gives a relatively better performance, the result is shown on the last line of \fref{fig:log}.
 
 The ineffective of the parallelisation was probably caused by the parallelisation overheads and significantly increased memory pressure. As \tref{tbl:sweep} suggests, the number of instructions, context switches, cache loads and cache misses for the parallelised version increased noticeably. Therefore, the parallelisation of \texttt{neighbors} was revoked.
 
@@ -588,12 +589,12 @@ The ineffective of the parallelisation was probably caused by the parallelisatio
 		Page faults		& $627.5 \sci{3}$	& $2,826.1 \sci{3}$	\\
 		Frontend cycles stalled	& $10.58 \%$		& $25.17 \%$		\\
 		Backend cycles stalled	& $36.39 \%$		& $25.13 \%$		\\
-		Branches		& $8.949 \sci{9}$	& $10.299 \sci{9}$	\\
-		Branch misses		& $112.3 \sci{6} (1.25 \%)$	& $119.3 \sci{6} (1.16 \%)$	\\
-		L1 cache loads		& $15.78 \sci{9}$	& $21.128 \sci{9}$	\\
-		L1 cache misses		& $423.3 \sci{6} (2.68 \%)$	& $734.8 \sci{6} (3.48 \%)$	\\
-		Last level cache loads	& $575.8 \sci{6}$	& $1,143.8 \sci{6}$	\\
-		Last level cache misses	& $124.4 \sci{6} (21.61 \%)$	& $214.9 \sci{6} (18.79 \%)$	\\
+		Branches		& $8.95 \sci{9}$	& $10.30 \sci{9}$	\\
+		Branch misses		& $112 \sci{6} (1.25 \%)$	& $119 \sci{6} (1.16 \%)$	\\
+		L1 cache loads		& $15.8 \sci{9}$	& $21.1 \sci{9}$	\\
+		L1 cache misses		& $423 \sci{6} (2.68 \%)$	& $735 \sci{6} (3.48 \%)$	\\
+		Last level cache loads	& $576 \sci{6}$	& $1,144 \sci{6}$	\\
+		Last level cache misses	& $124 \sci{6} (21.61 \%)$	& $215 \sci{6} (18.79 \%)$	\\
 		\hline
 	\end{tabular}
 \end{table}
@@ -610,8 +611,9 @@ The loop body only executed once...
 
 \subsection{SIMD implementation of \texttt{Data::load}}
 
-Using SIMD intrinsics...
-The load progress can be implemented by SIMD instructions. The \texttt{Data:load} can be optimised by SIMD intrinsics shown in \cite{advnotes}. Firstly, the input data is \texttt{intData} which contain multiple chars (8 bits), however the size of each element from \texttt{intData} is 16 bits. The first 8 bits are invalid. As the result, \texttt{src1, src2} are declared as temporary container for the data. Also, \texttt{\_\_mm\_and\_si128()} will compute the bitwise AND of 128-bit value in two arguments, so that the invalid bit are set to 0. This progress is a preparation for \texttt{\_\_mm\_packus\_epi16()}. This function will pack the 16 signed 16-bit integers from 2 inputs into 8-bit unsigned integers and saturates. That is the reason why set all the invalid bits to 0. In total, there are 16 chars in side one \texttt{pDst}, which means run one time of the loop will load 16 elements, so the times of the loop should be \texttt{totalSize / 16}.
+The load process can be implemented by SIMD instructions. The \texttt{Data:load} can be optimised by SIMD intrinsics as shown in \cite{advnotes}. Firstly, the input data is \texttt{intData} which contains multiple chars (8 bits), however the size of each element from \texttt{intData} is 16 bits. \texttt{\_\_mm\_packus\_epi16()} it needed to pack 16-bit elements from 2 inputs into 8-bit unsigned integers. \texttt{src1, src2} are declared as temporary container for the input data. However, it also involves a saturation function, that takes account of the higher 8-bits. To remove the invalid higher 8 bits, \texttt{\_\_mm\_and\_si128()} was used to compute the bitwise AND of 128-bit value in two arguments. In total, there are 16 chars inside one \texttt{pDst}, which means one iteration of the loop will load 16 elements, so the loop count should be \texttt{totalSize / 16}.
+
+However, this requires 16 bits input data size to be aligned to 8 elements width. Since all sample datasets satisfy this requirement, further alignment check was not implemented.
 
 \begin{lstlisting}[float,floatplacement=t,caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:mem]
 data = new DataType[totalSize];
@@ -628,14 +630,13 @@ for (uint i = 0; i < totalSize / 16; i++) {
 
 \subsection{Remove redundant \texttt{memset}}
 
-Redundant \texttt{memset} with \texttt{calloc}...
-The function \texttt{calloc} is used to allocate customised size of memory and initialise all bits inside this part of memory into 0. However, \texttt{memset} has the same purpose as the \texttt{calloc}, so it is no need to set all the bits to "0" again. After removing the \texttt{memset}, the total time is decreased by \%0.82 as \fref{fig:log} shows. 
+The function \texttt{calloc} is used to allocate customised size of memory and initialise all bytes inside this part of memory into 0. However, \texttt{memset} has the same purpose as the \texttt{calloc}, so there is no need to clear the memory again. After removing the \texttt{memset}, the total time is decreased by $0.82 \%$ as \fref{fig:log} shows. 
 
-Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}, it will not influence the result but the speed is decreased. Although, \texttt{calloc()} will do the memory allocation and memory initialisation together, it is faster than \texttt{malloc()}. The reason for that is \texttt{calloc()} will do less work because it can skip \texttt{memset()} entirely, also it can even not allocate any memory in some cases. Finally, after multiple times testing, \cite{calloc} is not replaced by \texttt{malloc}
-%\texttt{calloc} faster than \texttt{malloc}, why...
+Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}. It will not influence the result but the execution speed is decreased. It shows that although \texttt{calloc()} will do the memory allocation and memory initialisation together, it is still faster than \texttt{malloc()}. The reason for that is \texttt{calloc()} will do less initial work because it may skip memory allocation and \texttt{memset()} entirely in some cases, the kernel may gives a pseudo memory pointer without actually allocating the memory. Instead, the operations will be done only when the memory region is used later. After testing multiple times, \texttt{calloc} is not replaced by \texttt{malloc}
 
 \subsection{Parallel \texttt{ct\_sweepAndMerge()}}
-The longest time consumption is on function \texttt{sweep()}. This function was called twice by two separate functions named as \texttt{ct\_joinSweep()} and \texttt{ct\_splitSweep()}. The argument of those two functions is \texttt{ctx} and when they call \texttt{ct\_sweep}, all the parameters transferred to \texttt{ct\_sweep} are independent which means \texttt{ct\_joinSweep()} and \texttt{ct\_sliptSweep()} can be paralleled. In order to gain better performance, \texttt{parallel sections} are implemented inside of \texttt{ct\_sweepAndMerge} as \lref{lst:secs} shows. The optimisation saves huge part of time as \fref{fig:log} describes. It decreases more than 15\% time compared with last step. 
+The longest time consumption is on function \texttt{sweep()}. This function was called twice by two separate functions named \texttt{ct\_joinSweep()} and \texttt{ct\_splitSweep()}. The argument of those two functions is \texttt{ctx}, but when they call \texttt{ct\_sweep}, all the parameters transferred to \texttt{ct\_sweep} are independent, which means \texttt{ct\_joinSweep()} and \texttt{ct\_sliptSweep()} can be parallelised. In order to gain better performance, \texttt{openmp parallel sections} is used inside \texttt{ct\_sweepAndMerge} as \lref{lst:secs} shows. This optimisation saves a significant amount of time as \fref{fig:log} describes. It decreases the execution time by more than $15 \%$ compared with the original implementation. 
+
 \begin{lstlisting}[float,floatplacement=t,caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:secs]
 ctArc * ct_sweepAndMerge( ctContext * ctx )
 {
@@ -655,7 +656,9 @@ ctArc * ct_sweepAndMerge( ctContext * ctx )
 
 \subsection{Checking Results with VTune}
 
-VTune was run in the second platform. The first reason is that VTune is a large program so that it take long time to set up. However the primary platform need to have little overhead in order to get accuracy result, so the VTune is install on secondary platform. Furthermore, it is useful to compare the same program running on different processors. After the optimisation, the execution time of program \texttt{simple} is 4.163s on Intel platform. The difference between the time is due to the different processor architectures. The IPC of program running on Intel platform is much higher than AMD platform. 
+VTune was run in the secondary Intel platform. The first reason is that VTune is a sophisticated program so that it takes long time to set up. However, the primary AMD platform needs to have little overheads in order to get more accurate results, so the VTune is only installed on the secondary platform. It might be useful to compare the same program running on different processors.
+
+After the previous optimisations, the execution time of program \texttt{simple} is 4.163s on the Intel platform. The difference between the time is due to the different processor architectures. The IPC of the program running on Intel platform is much higher than AMD platform, suggesting Intel CPU is more efficient than AMD for this particular problem.
 
 The last step is checking the achievement of the optimisation. In order to see a obvious result, the largest dataset \texttt{CThead-2by4.256x512x452.uint16} is chosen as the input of program tested by VTune. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, most of functions are paralleled and the execution time is decreased significantly. 
 \begin{figure}[!h]
