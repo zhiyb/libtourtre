@@ -244,8 +244,6 @@
 % Basically, \url{my_url_here}.
 
 
-
-
 % hyperref
 %
 \usepackage[pdfpagemode={UseOutlines},bookmarks=true,bookmarksopen=true,
@@ -333,37 +331,6 @@ Email: js11815@ic.ac.uk}
 \IEEEauthorblockA{Imperial College London\\
 MSc Analogue and Digital\\Integrated Circuit Design\\
 Email: jm8415@ic.ac.uk}}
-
-% conference papers do not typically use \thanks and this command
-% is locked out in conference mode. If really needed, such as for
-% the acknowledgment of grants, issue a \IEEEoverridecommandlockouts
-% after \documentclass
-
-% for over three affiliations, or if they all won't fit within the width
-% of the page, use this alternative format:
-% 
-%\author{\IEEEauthorblockN{Michael Shell\IEEEauthorrefmark{1},
-%Homer Simpson\IEEEauthorrefmark{2},
-%James Kirk\IEEEauthorrefmark{3}, 
-%Montgomery Scott\IEEEauthorrefmark{3} and
-%Eldon Tyrell\IEEEauthorrefmark{4}}
-%\IEEEauthorblockA{\IEEEauthorrefmark{1}School of Electrical and Computer Engineering\\
-%Georgia Institute of Technology,
-%Atlanta, Georgia 30332--0250\\ Email: see http://www.michaelshell.org/contact.html}
-%\IEEEauthorblockA{\IEEEauthorrefmark{2}Twentieth Century Fox, Springfield, USA\\
-%Email: homer@thesimpsons.com}
-%\IEEEauthorblockA{\IEEEauthorrefmark{3}Starfleet Academy, San Francisco, California 96678-2391\\
-%Telephone: (800) 555--1212, Fax: (888) 555--1212}
-%\IEEEauthorblockA{\IEEEauthorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
-
-
-
-
-% use for special paper notices
-%\IEEEspecialpapernotice{(Invited Paper)}
-
-
-
 
 % make the title area
 \maketitle
@@ -456,27 +423,27 @@ One unexpected phenomenon is observed when multiple instances are executed in pa
 
 The optimisations are divided into multiple parts, the different effect of enhancement is shown in the next \fref{fig:log}. 
 
-Each program output was checked to ensure correct functionality of libtourtre.
+Each program output was checked to ensure correct functionality of \texttt{libtourtre}.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\columnwidth]{data_log}
-    \caption{The Result of Optimisation}
+    \caption{The result of optimisations ()}
     \label{fig:log}
 \end{figure}
 
 \subsection{Compiler Optimisation}
 
-Level 3 optimisation will transform short function into inline functions, which can save time used for function call. After compiler level 3 optimisation is turned on, the performance was improved by $1.92\%$.
+Level 3 optimisation will transform short function into in-line functions, which can save time used for function call. After compiler level 3 optimisation is turned on, the performance was improved by $1.92\%$.
 
 \subsection{C++ library}
 
 Changed the library to C++ for...
-Changing the library to C++ files in order to test whether \texttt{Thread Building Blocks (TBB)} can be used in the optimisation. In addition, the example program is written by C++, and it is more convenient to use lambda function in \texttt{Mesh::find6Neighbours} and \texttt{Mesh::find18Neighbours}. 
+Changing the library to C++ files in order to test whether \texttt{Thread Building Blocks (TBB)} can be used in the optimisation. In addition, the example program is written by C++, and it is more convenient to use lambda function in \texttt{Mesh::find6Neighbours} and \texttt{Mesh::find18Neighbors}. 
 
 \subsection{Remove unnecessary memory allocations}
 
-Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbors} and \texttt{find18Neighbours} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbors} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speedup was obtained.
+Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbors} and \texttt{find18Neighbors} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbors} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speed up was obtained.
 
 \begin{lstlisting}[language=diff,label=lst:neighbors,captionpos=b,caption={\texttt{neighbors} code modification}]
 --- a/examples/simple/src/main.cpp
@@ -499,11 +466,12 @@ Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbo
 
 \subsection{Unroll neighbours checking functions}
 
-\begin{lstlisting}[language=diff,label=lst:find,caption={\texttt{findNeighbours} code modification},captionpos=b, float, floatplacement=t]
+The original implementation of \texttt{find6Neighbors} and \texttt{find18Neighbors} functions involves very inefficient and complex array allocation, modification and comparison operations. As \lref{lst:find} shows, these were reduced to hard-coded coordinate checks. An additional $7.83 \%$ speed up was obtained.
+
+\begin{lstlisting}[language=diff,label=lst:find,caption={\texttt{find6Neighbours} code modification},captionpos=b,float,floatplacement=t]
 --- a/examples/simple/src/Mesh.cpp
 +++ b/examples/simple/src/Mesh.cpp
-@@ -47,77 +47,52 @@ size_t Mesh::getNeighbors(size_t i, size_t *n)
-
+@@ -48,77 +48,52 @@
  size_t Mesh::find6Neighbors( uint x, uint y, uint z, size_t *neighbors)
  {
 -   uint nx[6],ny[6],nz[6];
@@ -541,26 +509,20 @@ Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbo
  }
 \end{lstlisting}
 
-Removed complex inefficient implementation...
-
-\subsection{Re-order neighbours checks}
-
-Adjacent checks...
-
-Combine checks manually...
-
-Compiler optimisations...
+Further analysing of the \texttt{libtourtre} code shows the order of checks have no effect on the final result. By re-ordering the neighbour checks, ensuring only minimal coordinate changes to \texttt{xyz} dimensions exist between adjacent checks, another minor speed up of $1.55 \%$ was obtained. Manual coordinate check combination was also attempted, a similar speed up was obtained. This suggests the compiler was optimising the code as intended. To keep the code straightforward, the uncombined implementation was kept.
 
 \subsection{Inline simple functions}
 
-Data comparison functions \texttt{Data::less} and \texttt{Data::greater} are moved into header file instead of writing in source file. In addition, the \texttt{Mesh::getNeighbours} are put inline as well. Because those three functions are small and called frequently. Putting them as inline functions will gain higher efficiency. 
+Data comparison functions \texttt{Data::less} and \texttt{Data::greater} were moved into the header file \texttt{Data.h} instead of their original source file \texttt{Data.cpp}. In addition, the \texttt{Mesh::getNeighbours} function was flagged in-line as well. Those functions are short and simple, but were called frequently. Implement them as in-line functions will remove the function call process and enables further optimisations, at the cost of potentially larger code size. An additional speed up of $6.67 \%$ was obtained by the increased efficiency. 
 
 \subsection{Parallelise \texttt{createGraph}}
 
 Using openmp to parallel \texttt{sort()} in \texttt{Mesh::createGraph}...
 As the result shown on the gprof, the execution time of the \texttt{std::sort} occupies a large percentage of the whole program running time. Paralleling the \texttt{sort} function is an perfect technique to increasing the performance of \texttt{simple}. Finding a exist paralleled sort library from large company is more effective and efficiency approach than building up own paralleled sort library. \cite{parallelsort} The library has a function named as \texttt{pss::parallel\_stable\_sort()}. The arguments input the function are the same as the \texttt{std::sort()}. 
 
-\subsection{Parallelise \texttt{findNeighbours}}
+\subsection{Parallelise \texttt{findNeighbors}}
+
+An attempt to parallelise the \texttt{findNeighbors} function inside \texttt{ct\_sweep} has been made.
 
 Memory allocation...
 
