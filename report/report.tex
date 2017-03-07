@@ -428,7 +428,7 @@ Each program output was checked to ensure correct functionality of \texttt{libto
 \begin{figure}[t]
     \centering
     \includegraphics[width=\columnwidth]{data_log}
-    \caption{The result of optimisations ()}
+    \caption{The result of optimisation steps (...: last step repeated)}
     \label{fig:log}
 \end{figure}
 
@@ -443,7 +443,7 @@ Changing the library to C++ files in order to test whether \texttt{Thread Buildi
 
 \subsection{Remove unnecessary memory allocations}
 
-Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbors} and \texttt{find18Neighbors} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbors} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speed up was obtained.
+Several modifications has been made in \texttt{neighbors}, \texttt{find6Neighbors} and \texttt{find18Neighbors} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbors} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speed up was obtained.
 
 \begin{lstlisting}[language=diff,label=lst:neighbors,captionpos=b,caption={\texttt{neighbors} code modification}]
 --- a/examples/simple/src/main.cpp
@@ -561,7 +561,7 @@ for (uint i = 0; i < totalSize / 16; i++) {
     __m128i src1 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
     __m128i src2 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
     *pDst++ = _mm_packus_epi16(src1, src2);
-        }
+}
 \end{lstlisting}
 
 \subsection{Remove redundant \texttt{memset}}
@@ -611,6 +611,8 @@ The last step is checking the achievement of the optimisation. In order to see a
 
 
 \section{Group work}
+
+GitHub?
 
 You may work in groups of two or three if you wish, but your report must include an explicit statement of who did what.
 
