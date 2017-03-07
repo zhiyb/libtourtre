@@ -489,23 +489,22 @@ This hardware set is build as a customised Linux server without GUI. It has litt
 
 \subsubsection{gprof}
 
+Gprof is a profiling tool for Linux applications, it was used to sample call graphs by inserting instrumentation code. The limitation of Gprof is that because timing data sampling is done by probing program counter using system interrupt, the profiling data will not be very accurate.
 \cite{graham1982gprof}
 
 \subsubsection{valgrind(cachegrind)}
 
-valgrind \cite{nethercote2003valgrind}
-
-cachegrind \cite{seward2004cachegrind}
+Valgrind \cite{nethercote2003valgrind} is an instrumentation framework for building performance analysis tools. It contains many different tools that can be used to evaluate different aspect of application performance. One particular tool used in this exercises is '\texttt{cachegrind}' \cite{seward2004cachegrind}, which can simulate the cache hierarchy performance. However, it has a major drawback, the simulation time is too long for large datasets.
 
 \subsubsection{Linux perf}
 
-\cite{de2010new}
-
-(!)
+Linux perf \cite{de2010new} is a powerful performance analysing tool in Linux system, it utilises Linux performance counter subsystem and has tracing capabilities. It can be used to observe different performance statistics including cycle count, instruction stalls, branch misses and cache misses, etc. The biggest advantage of this tool is that it can show in-depth details about time usage of individual functions and instructions.
 
 \subsubsection{Intel VTune}
 
-\cite{malladi2009using}
+Intel Vtune \cite{malladi2009using} is a software performance analysis tool developed by Intel. whether the progrram is parla not, how many thread and how long the function tak
+
+It can show whether the program is paralleled and the thread count used by each function as well as the time taken by each thread and function.  
 
 \section{Analysis}
 
