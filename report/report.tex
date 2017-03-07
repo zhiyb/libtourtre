@@ -489,7 +489,7 @@ This hardware set is build as a customised Linux server without GUI. It has litt
 
 \subsubsection{gprof}
 
-Gprof is a profiling tool for Linux applications, it was used to sample call graphs by inserting instrumentation code. The limitation of Gprof is that because timing data sampling is done by probing program counter using system interrupt, the profiling data will not be very accurate.
+Gprof is a profiling tool for Linux applications, it was used to simply call graphs by inserting instrumentation code. The limitation of Gprof is obvious, because timing data sampling is done by probing program counter using system interrupt, and the profiling data will not be very accurate.
 \cite{graham1982gprof}
 
 \subsubsection{valgrind(cachegrind)}
@@ -498,13 +498,11 @@ Valgrind \cite{nethercote2003valgrind} is an instrumentation framework for build
 
 \subsubsection{Linux perf}
 
-Linux perf \cite{de2010new} is a powerful performance analysing tool in Linux system, it utilises Linux performance counter subsystem and has tracing capabilities. It can be used to observe different performance statistics including cycle count, instruction stalls, branch misses and cache misses, etc. The biggest advantage of this tool is that it can show in-depth details about time usage of individual functions and instructions.
+Linux perf \cite{de2010new} is a powerful performance analysing tool in Linux system, it utilises Linux performance counter subsystem and has tracing capabilities. It can be used to observe different performance statistics including cycle count, instruction stalls, branch misses and cache misses, etc. The major advantage of this tool is that it can show in-depth details about time usage of individual functions and instructions.
 
 \subsubsection{Intel VTune}
 
-Intel Vtune \cite{malladi2009using} is a software performance analysis tool developed by Intel. whether the progrram is parla not, how many thread and how long the function tak
-
-It can show whether the program is paralleled and the thread count used by each function as well as the time taken by each thread and function.  
+Vtune \cite{malladi2009using} is a software performance analysis tool developed by Intel. It can show whether the program is paralleled and the thread count used by each function as well as the time taken by each thread and function.  
 
 \section{Analysis}
 
