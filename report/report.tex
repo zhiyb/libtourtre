@@ -1,56 +1,4 @@
-
-%% bare_conf.tex
-%% V1.4b
-%% 2015/08/26
-%% by Michael Shell
-%% See:
-%% http://www.michaelshell.org/
-%% for current contact information.
-%%
-%% This is a skeleton file demonstrating the use of IEEEtran.cls
-%% (requires IEEEtran.cls version 1.8b or later) with an IEEE
-%% conference paper.
-%%
-%% Support sites:
-%% http://www.michaelshell.org/tex/ieeetran/
-%% http://www.ctan.org/pkg/ieeetran
-%% and
-%% http://www.ieee.org/
-
-%%*************************************************************************
-%% Legal Notice:
-%% This code is offered as-is without any warranty either expressed or
-%% implied; without even the implied warranty of MERCHANTABILITY or
-%% FITNESS FOR A PARTICULAR PURPOSE! 
-%% User assumes all risk.
-%% In no event shall the IEEE or any contributor to this code be liable for
-%% any damages or losses, including, but not limited to, incidental,
-%% consequential, or any other damages, resulting from the use or misuse
-%% of any information contained here.
-%%
-%% All comments are the opinions of their respective authors and are not
-%% necessarily endorsed by the IEEE.
-%%
-%% This work is distributed under the LaTeX Project Public License (LPPL)
-%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
-%% distributed and modified. A copy of the LPPL, version 1.3, is included
-%% in the base LaTeX documentation of all distributions of LaTeX released
-%% 2003/12/01 or later.
-%% Retain all contribution notices and credits.
-%% ** Modified files should be clearly indicated as such, including  **
-%% ** renaming them and changing author support contact information. **
-%%*************************************************************************
-
-
-% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
-% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
-% *** with production work. The IEEE's font choices and paper sizes can   ***
-% *** trigger bugs that do not appear when using other class files.       ***                          ***
-% The testflow support page is at:
-% http://www.michaelshell.org/tex/testflow/
-
-
-
+% vim: ts=4 sw=4 et
 \documentclass[conference]{IEEEtran}
 % Some Computer Society conferences also require the compsoc mode option,
 % but others use the standard conference format.
@@ -59,13 +7,8 @@
 % manually specify the path to it like:
 % \documentclass[conference]{../sty/IEEEtran}
 
-
-
-
-
 % Some very useful LaTeX packages include:
 % (uncomment the ones you want to load)
-
 
 % *** MISC UTILITY PACKAGES ***
 %
@@ -288,7 +231,7 @@
 % The latest version can be found at:
 % http://www.ctan.org/pkg/dblfloatfix
 
-
+\usepackage{float}
 
 
 % *** PDF, URL AND HYPERLINK PACKAGES ***
@@ -323,7 +266,7 @@
 
 \lstdefinelanguage{diff}{
   morecomment=[f][\color{blue}]{@@},     % group identifier
-  morecomment=[f][\color{red}]-,         % deleted lines
+  morecomment=[f][\color{red}]-,     % deleted lines
   morecomment=[f][\color{dkgreen}]+,       % added lines
   morecomment=[f][\color{magenta}]{---}, % Diff header lines (must appear after +,-)
   morecomment=[f][\color{magenta}]{+++},
@@ -347,7 +290,7 @@
 }
 
 % *** Do not adjust lengths that control margins, column widths, etc. ***
-% *** Do not use packages that alter fonts (such as pslatex).         ***
+% *** Do not use packages that alter fonts (such as pslatex).     ***
 % There should be no need to do such things with IEEEtran.cls V1.6 and later.
 % (Unless specifically asked to do so by the journal or conference you plan
 % to submit to, of course. )
@@ -432,22 +375,7 @@ The course work is based on a contour tree library called "tourtre",
 and a sample application named "simple". The aim of the exercise is to speed up the program and evaluate the performance of it. This short report will represent the result and have a small discussion and explanation. 
 \end{abstract}
 
-% no keywords
-
-
-
-
-% For peer review papers, you can put extra information on the cover
-% page as needed:
-% \ifCLASSOPTIONpeerreview
-% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
-% \fi
-%
-% For peerreview papers, this IEEEtran command inserts a page break and
-% creates the second title. It will be ignored for other modes.
 \IEEEpeerreviewmaketitle
-
-
 
 \section{Introduction}
 % no \IEEEPARstart
@@ -466,30 +394,30 @@ libtourtre \cite{libtourtre}
 
 \textbf{There are two testing platform used in this exercise. The primary platform is:}
 
-Motherboard:	SABERTOOTH 990FX R2.0
+Motherboard:    SABERTOOTH 990FX R2.0
 
-CPU:	AMD FX(tm)-8350 Eight-Core Processor (4013.652 MHz)
+CPU:    AMD FX(tm)-8350 Eight-Core Processor (4013.652 MHz)
 
-RAM:	16199520 kiB
+RAM:    16199520 kiB
 
-Disk:	OCZ-VERTEX4 SSD
+Disk:    OCZ-VERTEX4 SSD
 
 \textbf{Secondary platform is used to run VTune and compared with primary platform:}
 
-Motherboard:	ASUS Z170-DELUXE Desktop Motherboard
+Motherboard:    ASUS Z170-DELUXE Desktop Motherboard
 
-CPU:	INTEL Intel® Core™ i7-6700K Processor (8M Cache, up to 4.20 GHz)
+CPU:    INTEL Intel® Core™ i7-6700K Processor (8M Cache, up to 4.20 GHz)
 
-RAM:	16199520 kiB
+RAM:    16199520 kiB
 
-Disk:	2$\times$Crucial\_CT256MX100 SSD (RAID0)
+Disk:    2$\times$Crucial\_CT256MX100 SSD (RAID0)
 \subsection{Software platform for primary hardware configuration}
 
-OS:	Debian GNU/Linux 8 (jessie)
+OS:    Debian GNU/Linux 8 (jessie)
 
-Kernel:	Linux 3.16.0-4-amd64
+Kernel:    Linux 3.16.0-4-amd64
 
-Compiler:	gcc (Debian 4.9.2-10)
+Compiler:    gcc (Debian 4.9.2-10)
 
 This hardware set is build as a customised Linux server without GUI. It has little overhead and it can be accessed anywhere through ssh. In addition, it is convenient to install and configure software development environment.
 
@@ -531,10 +459,10 @@ The optimisations are divided into multiple parts, the different effect of enhan
 Each program output was checked to ensure correct functionality of libtourtre.
 
 \begin{figure}[t]
-	\centering
-	\includegraphics[width=\columnwidth]{data_log}
-	\caption{The Result of Optimisation}
-	\label{fig:log}
+    \centering
+    \includegraphics[width=\columnwidth]{data_log}
+    \caption{The Result of Optimisation}
+    \label{fig:log}
 \end{figure}
 
 \subsection{Compiler Optimisation}
@@ -555,21 +483,63 @@ Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbo
 +++ b/examples/simple/src/main.cpp
 @@ -26,15 +26,7 @@
  size_t neighbors(size_t v, size_t *nbrs, void *d) {
-        Mesh * mesh = static_cast<Mesh*>(d);
--       static std::vector<size_t> nbrsBuf;
+    Mesh * mesh = static_cast<Mesh*>(d);
+-   static std::vector<size_t> nbrsBuf;
 -
--       nbrsBuf.clear();
--       mesh->getNeighbors(v,nbrsBuf);
+-   nbrsBuf.clear();
+-   mesh->getNeighbors(v,nbrsBuf);
 -
--       for (uint i = 0; i < nbrsBuf.size(); i++) {
--               nbrs[i] = nbrsBuf[i];
--       }
--       return nbrsBuf.size();
-+       return mesh->getNeighbors(v,nbrs);
+-   for (uint i = 0; i < nbrsBuf.size(); i++) {
+-       nbrs[i] = nbrsBuf[i];
+-   }
+-   return nbrsBuf.size();
++   return mesh->getNeighbors(v,nbrs);
  }
 \end{lstlisting}
 
 \subsection{Unroll neighbours checking functions}
+
+\begin{lstlisting}[language=diff,label=lst:find, float, floatplacement=t]
+--- a/examples/simple/src/Mesh.cpp
++++ b/examples/simple/src/Mesh.cpp
+@@ -47,77 +47,52 @@ size_t Mesh::getNeighbors(size_t i, size_t *n)
+
+ size_t Mesh::find6Neighbors( uint x, uint y, uint z, size_t *neighbors)
+ {
+-   uint nx[6],ny[6],nz[6];
+-   for (uint i = 0; i < 6; i++) {
+-       nx[i] = x;
+-       ny[i] = y;
+-       nz[i] = z;
+-   }
+-   //first 6 neighbors
+-   nx[0] -= 1;
+-   ...
+-   nz[5] += 1;
+-
+    size_t size = 0;
+-   for (uint i = 0; i < 6; i++) {
+-       if (nx[i] >= data.size[0]) continue;
+-       if (ny[i] >= data.size[1]) continue;
+-       if (nz[i] >= data.size[2]) continue;
+-       *neighbors++ = data.convertIndex(nx[i],ny[i],nz[i]);
+-       size++;
+-   }
++   auto check = [=, &size, &neighbors](uint x, uint y, uint z) {
++       if (x < data.size[0] && y < data.size[1] && z < data.size[2]) {
++           *neighbors++ = data.convertIndex(x, y, z);
++           size++;
++       }
++   };
++   check(x - 1, y, z);
++   check(x, y - 1, z);
++   check(x, y, z - 1);
++   check(x + 1, y, z);
++   check(x, y + 1, z);
++   check(x, y, z + 1);
+    return size;
+ }
+\end{lstlisting}
 
 Removed complex inefficient implementation...
 
@@ -625,11 +595,11 @@ __m128i *pDst = (__m128i *) data;
 ...
 __m128i *pSrc = (__m128i *) intData;
 for (uint i = 0; i < totalSize / 16; i++) {
-	//data[i] = static_cast<DataType>( intData[i] );
-	__m128i src1 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
-	__m128i src2 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
-	*pDst++ = _mm_packus_epi16(src1, src2);
-		}
+    //data[i] = static_cast<DataType>( intData[i] );
+    __m128i src1 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
+    __m128i src2 = _mm_and_si128(*pSrc++, _mm_set1_epi16(0x00ff));
+    *pDst++ = _mm_packus_epi16(src1, src2);
+        }
 \end{lstlisting}
 
 \subsection{Remove redundant \texttt{memset}}
@@ -645,8 +615,8 @@ The longest time consumption is on function \texttt{sweep()}. This function was 
 \begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:secs]
 ctArc * ct_sweepAndMerge( ctContext * ctx )
 {
-	ct_checkContext(ctx);
-	
+    ct_checkContext(ctx);
+    
 #pragma omp parallel sections    
 {    
 #pragma omp section
@@ -665,16 +635,16 @@ VTune was run in the second platform. The first reason is that VTune is a large 
 
 The last step is checking the achievement of the optimisation. In order to see a obvious result, the largest dataset \texttt{CThead-2by4.256x512x452.uint16} is chosen as the input of program tested by VTune. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, most of functions are paralleled and the execution time is decreased significantly. 
 \begin{figure}[!h]
-	\centering
-	\includegraphics[width=\columnwidth]{noopt_vtune}
-	\caption{The Program without Optimisation}
-	\label{fig:noopt}
+    \centering
+    \includegraphics[width=\columnwidth]{noopt_vtune}
+    \caption{The Program without Optimisation}
+    \label{fig:noopt}
 \end{figure}
 \begin{figure}[!h]
-	\centering
-	\includegraphics[width=\columnwidth]{opt_vtune}
-	\caption{The Final Optimised Program}
-	\label{fig:opt}
+    \centering
+    \includegraphics[width=\columnwidth]{opt_vtune}
+    \caption{The Final Optimised Program}
+    \label{fig:opt}
 \end{figure}
 
 
