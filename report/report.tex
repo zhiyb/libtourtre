@@ -258,7 +258,7 @@
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
-\newcommand{\fsize}{\small}
+\newcommand{\fsize}{\scriptsize}
 %\newcommand{\fsize}{\tiny}
 \newcommand{\tabsize}{4}
 
@@ -302,6 +302,7 @@
 \newcommand{\tref}[1]{\tablename~\ref{#1}}
 \newcommand{\lref}[1]{LISTING~\ref{#1}}
 
+\newcommand{\sci}[1]{\times 10 ^ #1}
 
 \begin{document}
 %
@@ -349,9 +350,7 @@ and a sample application named "simple". The aim of the exercise is to speed up 
 
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-This exercise aims to make the algorithm for computing minimal contour tree faster. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered, and partially parallelised. The total execution time is decreased by $40\%$.
-
-libtourtre \cite{libtourtre}
+This exercise aims to make the algorithm for computing minimal contour tree (libtourtre \cite{libtourtre}) as fast as possible. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered, and partially parallelised. The total execution time is decreased by $55.62 \%$.
 
 \hfill \today
 
@@ -427,7 +426,7 @@ Each program output was checked to ensure correct functionality of \texttt{libto
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\columnwidth]{data_log}
+    \includegraphics[width=0.8\columnwidth]{data_log}
     \caption{The result of optimisation steps (...: last step repeated)}
     \label{fig:log}
 \end{figure}
@@ -439,13 +438,15 @@ Level 3 optimisation will transform short function into in-line functions, which
 \subsection{C++ library}
 
 Changed the library to C++ for...
-Changing the library to C++ files in order to test whether \texttt{Thread Building Blocks (TBB)} can be used in the optimisation. In addition, the example program is written by C++, and it is more convenient to use lambda function in \texttt{Mesh::find6Neighbours} and \texttt{Mesh::find18Neighbors}. 
+Changing the library to C++ files in order to test whether \texttt{Thread Building Blocks (TBB)} can be used in the optimisation, although \texttt{openmp} \cite{dagum1998openmp} was actually used for parallelisation due to its simplicity.
+
+In addition, the example program is written by C++, and it is more convenient to use lambda function in the optimisation for \texttt{Mesh::find6Neighbours} and \texttt{Mesh::find18Neighbors}.
 
 \subsection{Remove unnecessary memory allocations}
 
 Several modifications has been made in \texttt{neighbors}, \texttt{find6Neighbors} and \texttt{find18Neighbors} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbors} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speed up was obtained.
 
-\begin{lstlisting}[language=diff,label=lst:neighbors,captionpos=b,caption={\texttt{neighbors} code modification}]
+\begin{lstlisting}[float,floatplacement=t,language=diff,label=lst:neighbors,captionpos=b,caption={\texttt{neighbors} code modification}]
 --- a/examples/simple/src/main.cpp
 +++ b/examples/simple/src/main.cpp
 @@ -26,15 +26,7 @@
@@ -520,21 +521,82 @@ Data comparison functions \texttt{Data::less} and \texttt{Data::greater} were mo
 Using openmp to parallel \texttt{sort()} in \texttt{Mesh::createGraph}...
 As the result shown on the gprof, the execution time of the \texttt{std::sort} occupies a large percentage of the whole program running time. Paralleling the \texttt{sort} function is an perfect technique to increasing the performance of \texttt{simple}. Finding a exist paralleled sort library from large company is more effective and efficiency approach than building up own paralleled sort library. \cite{parallelsort} The library has a function named as \texttt{pss::parallel\_stable\_sort()}. The arguments input the function are the same as the \texttt{std::sort()}. 
 
-\subsection{Parallelise \texttt{findNeighbors}}
+\subsection{Parallelise \texttt{ct\_sweep}}
 
-An attempt to parallelise the \texttt{findNeighbors} function inside \texttt{ct\_sweep} has been made.
+An attempt to parallelise the \texttt{findNeighbors} function inside \texttt{ct\_sweep} has been made. The code modification is shown by \lref{lst:sweep}.
 
-Memory allocation...
+\begin{lstlisting}[language=diff,label=lst:sweep,captionpos=b,caption={\texttt{ct\_sweep} code modification},float,floatplacement=t]
+--- tourtre.cpp.original
++++ tourtre.cpp
+@@ -199,14 +199,23 @@
+     size_t itr = 0, i = 0, n;
+     ctComponent * iComp;
+     int numExtrema = 0, numSaddles = 0;
+-    size_t * nbrs = malloc(ctx->maxValence * sizeof(size_t));
++    size_t its = inc > 0 ? (end - start) / inc : (start - end) / -inc;
++    size_t * nbrs = calloc(ctx->maxValence * its, sizeof(size_t));
++    size_t *numNbr = malloc(sizeof(size_t) * its);
++    size_t *nptr = nbrs, *ptr = numNbr;
++
++#pragma omp parallel for
++    for (itr = 0; itr < its; itr++) {
++       size_t i = ctx->totalOrder[(int)start + (int)itr * inc];
++       *(numNbr + itr) = (*(ctx->neighbors))(i, nbrs + itr * ctx->maxValence, ctx->cbData);
++    }
 
-Extract...
+     for (itr = start; itr != end; itr += inc) {
+         i = ctx->totalOrder[itr];
+         iComp = NULL;
+-        size_t numNbrs = (*(ctx->neighbors))(i,nbrs,ctx->cbData);
++        size_t numNbrs = *ptr++;
+         int numNbrComps = 0;
+         for (n = 0; n < numNbrs; n++) {
+-            size_t j = nbrs[n];
++            size_t j = nptr[n];
 
-Reduce memory usage...
+             if ( comps[j] ) {
+@@ -266,4 +275,5 @@
+             }
+         } /*  for each neighbor */
++        nptr += ctx->maxValence;
+         if (numNbrComps == 0) {
+\end{lstlisting}
 
-Using openmp \cite{dagum1998openmp}...
+It is possible to extract \texttt{ctx->neighbors} function call to a separate loop. By doing so, a large memory space must be allocated to store all the results of \texttt{nbrs} from every iteration. In the original implementation, the \texttt{maxValence} value was kept at the default value of 256. However, this results in a memory allocation of over $60 GiB$ for the sample dataset, which is inefficient to do and impossible on the primary testing platform.
 
-Manual task blocks...
+To address the memory issue, the \texttt{maxValence} parameter was changed to 18 during initialisation, which is the maximum possible number of results generated from the \texttt{neighbors} function. This results in a far more sensible memory allocation size for the same dataset, also possible to execute on the primary platform.
 
-Failure, not effective.
+The \texttt{openmp parallel for} directive was then used for paralleling the extracted loop. However, this parallelisation implementation is not worthwhile. The execution time becomes even longer then the unoptimised original version. Manual partition of task blocks was also attempted, without any noticeable improvement. A manual block size of $500 k$ gives a relatively better performance, the result is shown on the last line of \fref{fig:log}.
+
+The ineffective of the parallelisation was probably caused by the parallelisation overheads and significantly increased memory pressure. As \tref{tbl:sweep} suggests, the number of instructions, context switches, cache loads and cache misses for the parallelised version increased noticeably. Therefore, the parallelisation of \texttt{neighbors} was revoked.
+
+\begin{table}[!t]
+	% increase table row spacing, adjust to taste
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Linux perf performance data of paralleling \texttt{ct\_sweep}}
+	\label{tbl:sweep}
+	\centering
+	% Some packages, such as MDW tools, offer better commands for making tables
+	% than the plain LaTeX2e tabular which is used here.
+	\begin{tabular}{lll}
+		\hline
+		Item			& Original		& Parallelised		\\
+		\hline
+		Wall clock time		& $8.437 s$		& $10.611 s$		\\
+		Instructions		& $39.10 \sci{9}$	& $47.64 \sci{9}$	\\
+		Context switches	& $256$			& $1,376$		\\
+		Page faults		& $627.5 \sci{3}$	& $2,826.1 \sci{3}$	\\
+		Frontend cycles stalled	& $10.58 \%$		& $25.17 \%$		\\
+		Backend cycles stalled	& $36.39 \%$		& $25.13 \%$		\\
+		Branches		& $8.949 \sci{9}$	& $10.299 \sci{9}$	\\
+		Branch misses		& $112.3 \sci{6} (1.25 \%)$	& $119.3 \sci{6} (1.16 \%)$	\\
+		L1 cache loads		& $15.78 \sci{9}$	& $21.128 \sci{9}$	\\
+		L1 cache misses		& $423.3 \sci{6} (2.68 \%)$	& $734.8 \sci{6} (3.48 \%)$	\\
+		Last level cache loads	& $575.8 \sci{6}$	& $1,143.8 \sci{6}$	\\
+		Last level cache misses	& $124.4 \sci{6} (21.61 \%)$	& $214.9 \sci{6} (18.79 \%)$	\\
+		\hline
+	\end{tabular}
+\end{table}
 
 \subsection{Parallelise \texttt{ct\_sweep}}
 
@@ -551,7 +613,7 @@ The loop body only executed once...
 Using SIMD intrinsics...
 The load progress can be implemented by SIMD instructions. The \texttt{Data:load} can be optimised by SIMD intrinsics shown in \cite{advnotes}. Firstly, the input data is \texttt{intData} which contain multiple chars (8 bits), however the size of each element from \texttt{intData} is 16 bits. The first 8 bits are invalid. As the result, \texttt{src1, src2} are declared as temporary container for the data. Also, \texttt{\_\_mm\_and\_si128()} will compute the bitwise AND of 128-bit value in two arguments, so that the invalid bit are set to 0. This progress is a preparation for \texttt{\_\_mm\_packus\_epi16()}. This function will pack the 16 signed 16-bit integers from 2 inputs into 8-bit unsigned integers and saturates. That is the reason why set all the invalid bits to 0. In total, there are 16 chars in side one \texttt{pDst}, which means run one time of the loop will load 16 elements, so the times of the loop should be \texttt{totalSize / 16}.
 
-\begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:mem]
+\begin{lstlisting}[float,floatplacement=t,caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:mem]
 data = new DataType[totalSize];
 __m128i *pDst = (__m128i *) data;
 ...
@@ -574,7 +636,7 @@ Furthermore, the function \texttt{calloc()} was changed to \texttt{malloc()}, it
 
 \subsection{Parallel \texttt{ct\_sweepAndMerge()}}
 The longest time consumption is on function \texttt{sweep()}. This function was called twice by two separate functions named as \texttt{ct\_joinSweep()} and \texttt{ct\_splitSweep()}. The argument of those two functions is \texttt{ctx} and when they call \texttt{ct\_sweep}, all the parameters transferred to \texttt{ct\_sweep} are independent which means \texttt{ct\_joinSweep()} and \texttt{ct\_sliptSweep()} can be paralleled. In order to gain better performance, \texttt{parallel sections} are implemented inside of \texttt{ct\_sweepAndMerge} as \lref{lst:secs} shows. The optimisation saves huge part of time as \fref{fig:log} describes. It decreases more than 15\% time compared with last step. 
-\begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:secs]
+\begin{lstlisting}[float,floatplacement=t,caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:secs]
 ctArc * ct_sweepAndMerge( ctContext * ctx )
 {
     ct_checkContext(ctx);
