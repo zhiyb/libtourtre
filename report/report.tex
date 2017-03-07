@@ -321,6 +321,14 @@
 %\newcommand{\fsize}{\tiny}
 \newcommand{\tabsize}{4}
 
+\lstdefinelanguage{diff}{
+  morecomment=[f][\color{blue}]{@@},     % group identifier
+  morecomment=[f][\color{red}]-,         % deleted lines
+  morecomment=[f][\color{dkgreen}]+,       % added lines
+  morecomment=[f][\color{magenta}]{---}, % Diff header lines (must appear after +,-)
+  morecomment=[f][\color{magenta}]{+++},
+}
+
 \lstset{frame=tb,
   language=C++,
 %  aboveskip=0mm,
@@ -483,7 +491,7 @@ Kernel:	Linux 3.16.0-4-amd64
 
 Compiler:	gcc (Debian 4.9.2-10)
 
-This hardware set is build as a customised Linux server without GUI. It has little overhead and it can be accessed anywhere with ssh. In addition, it is convenient to configuration. 
+This hardware set is build as a customised Linux server without GUI. It has little overhead and it can be accessed anywhere through ssh. In addition, it is convenient to install and configure software development environment.
 
 \subsection{Performance analysis tools}
 
@@ -498,7 +506,7 @@ Valgrind \cite{nethercote2003valgrind} is an instrumentation framework for build
 
 \subsubsection{Linux perf}
 
-Linux perf \cite{de2010new} is a powerful performance analysing tool in Linux system, it utilises Linux performance counter subsystem and has tracing capabilities. It can be used to observe different performance statistics including cycle count, instruction stalls, branch misses and cache misses, etc. The major advantage of this tool is that it can show in-depth details about time usage of individual functions and instructions.
+Linux perf \cite{de2010new} is a powerful performance analysing tool in Linux system, it utilises Linux performance counter subsystem and has tracing capabilities. It can be used to observe different performance statistics including cycle count, instruction stalls, branch misses and cache misses, etc. The major advantage of this tool is that it can show in-depth details about time usage of individual functions and instructions. It also use less time compared with other profilers, therefore, Linux perf was chosen to be the primary tool used in later analysis.
 
 \subsubsection{Intel VTune}
 
@@ -506,46 +514,32 @@ Vtune \cite{malladi2009using} is a software performance analysis tool developed 
 
 \section{Analysis}
 
-\subsection{The program}
-
 \subsection{Example datasets}
 
-Execution time?
-
-Reasons...
+The \texttt{CThead-2by2.256x512x226.uint16} is chosen to be used in this exercise. The reason for this choice is that the execution time for this dataset is around 12 seconds, thus suitable for rapid software development while keeping a reasonable problem size.
 
 \subsection{Initial performance}
 
-Program timing method... (Makefile rules?)
+The tool used to measure time usage of the program is the built-in \texttt{time} function in bash. To ensure a representative result, multiple measurements were taken and then averaged. The time taken by the original program is $13.655 s$. In addition, Makefile was used to simplify the measuring process.
 
-Initial performance...
-
-Performance drop vs. number of running instances...
-
-\subsection{Analysis}
-
-Profilers... Profiling method... (Makefile rules?)
-
-\texttt{FindNNeighbours} functions...
-
-\texttt{ct\_sweep} function...
-
-\texttt{Mesh::createGraph} function...
+One unexpected phenomenon is observed when multiple instances are executed in parallel. The performance drops with increasing number of instances even if instances count does not excess the number of cores.
 
 \section{Optimisations and evaluations}
+
 The optimisations are divided into multiple parts, the different effect of enhancement is shown in the next \fref{fig:log}. 
-\begin{figure}[!ht]
+
+Each program output was checked to ensure correct functionality of libtourtre.
+
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=\columnwidth]{data_log}
 	\caption{The Result of Optimisation}
 	\label{fig:log}
 \end{figure}
 
+\subsection{Compiler Optimisation}
 
-\subsection{Result validation}
-
-Run multiple times, check output...
-
+Level 3 optimisation will transform short function into inline functions, which can save time used for function call. After compiler level 3 optimisation is turned on, the performance was improved by $1.92\%$.
 
 \subsection{C++ library}
 
@@ -554,7 +548,26 @@ Changing the library to C++ files in order to test whether \texttt{Thread Buildi
 
 \subsection{Remove unnecessary memory allocations}
 
-Removed \texttt{vector} allocation in...
+Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbours} and \texttt{find18Neighbours} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbours} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speedup was obtained.
+
+\begin{lstlisting}[language=diff,label=lst:neighbors]
+--- a/examples/simple/src/main.cpp
++++ b/examples/simple/src/main.cpp
+@@ -26,15 +26,7 @@
+ size_t neighbors(size_t v, size_t *nbrs, void *d) {
+        Mesh * mesh = static_cast<Mesh*>(d);
+-       static std::vector<size_t> nbrsBuf;
+-
+-       nbrsBuf.clear();
+-       mesh->getNeighbors(v,nbrsBuf);
+-
+-       for (uint i = 0; i < nbrsBuf.size(); i++) {
+-               nbrs[i] = nbrsBuf[i];
+-       }
+-       return nbrsBuf.size();
++       return mesh->getNeighbors(v,nbrs);
+ }
+\end{lstlisting}
 
 \subsection{Unroll neighbours checking functions}
 
@@ -605,6 +618,7 @@ The loop body only executed once...
 
 Using SIMD intrinsics...
 The load progress can be implemented by SIMD instructions. The \texttt{Data:load} can be optimised by SIMD intrinsics shown in \cite{advnotes}. Firstly, the input data is \texttt{intData} which contain multiple chars (8 bits), however the size of each element from \texttt{intData} is 16 bits. The first 8 bits are invalid. As the result, \texttt{src1, src2} are declared as temporary container for the data. Also, \texttt{\_\_mm\_and\_si128()} will compute the bitwise AND of 128-bit value in two arguments, so that the invalid bit are set to 0. This progress is a preparation for \texttt{\_\_mm\_packus\_epi16()}. This function will pack the 16 signed 16-bit integers from 2 inputs into 8-bit unsigned integers and saturates. That is the reason why set all the invalid bits to 0. In total, there are 16 chars in side one \texttt{pDst}, which means run one time of the loop will load 16 elements, so the times of the loop should be \texttt{totalSize / 16}.
+
 \begin{lstlisting}[caption={Data Load with SIMD Intrinsics},captionpos=b,label=lst:mem]
 data = new DataType[totalSize];
 __m128i *pDst = (__m128i *) data;
@@ -645,8 +659,8 @@ ctArc * ct_sweepAndMerge( ctContext * ctx )
 }
 \end{lstlisting}
 
-
 \subsection{Checking Results with VTune}
+
 VTune was run in the second platform. The first reason is that VTune is a large program so that it take long time to set up. However the primary platform need to have little overhead in order to get accuracy result, so the VTune is install on secondary platform. Furthermore, it is useful to compare the same program running on different processors. After the optimisation, the execution time of program \texttt{simple} is 4.163s on Intel platform. The difference between the time is due to the different processor architectures. The IPC of program running on Intel platform is much higher than AMD platform. 
 
 The last step is checking the achievement of the optimisation. In order to see a obvious result, the largest dataset \texttt{CThead-2by4.256x512x452.uint16} is chosen as the input of program tested by VTune. Those two figures (\fref{fig:noopt} and \fref{fig:opt})below shows how the program  paralleled. There are three colors shown in results which describe how many CPU cores work simultaneously. Red means the program runs in series. Yellow means there are 2 to 6 threads running. Green gives the best result which represents that there are more than 6 Cores work at the same time. The \fref{fig:noopt} describes that the all the functions of the original program run sequentially. The second graph \fref{fig:opt} proves that after optimisation, most of functions are paralleled and the execution time is decreased significantly. 
@@ -667,103 +681,6 @@ The last step is checking the achievement of the optimisation. In order to see a
 \section{Group work}
 
 You may work in groups of two or three if you wish, but your report must include an explicit statement of who did what.
-
-% An example of a floating figure using the graphicx package.
-% Note that \label must occur AFTER (or within) \caption.
-% For figures, \caption should occur after the \includegraphics.
-% Note that IEEEtran v1.7 and later has special internal code that
-% is designed to preserve the operation of \label within \caption
-% even when the captionsoff option is in effect. However, because
-% of issues like this, it may be the safest practice to put all your
-% \label just after \caption rather than within \caption{}.
-%
-% Reminder: the "draftcls" or "draftclsnofoot", not "draft", class
-% option should be used if it is desired that the figures are to be
-% displayed while in draft mode.
-%
-%\begin{figure}[!t]
-%\centering
-%\includegraphics[width=2.5in]{myfigure}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure}
-
-% Note that the IEEE typically puts floats only at the top, even when this
-% results in a large percentage of a column being occupied by floats.
-
-
-% An example of a double column floating figure using two subfigures.
-% (The subfig.sty package must be loaded for this to work.)
-% The subfigure \label commands are set within each subfloat command,
-% and the \label for the overall figure must come after \caption.
-% \hfil is used as a separator to get equal spacing.
-% Watch out that the combined width of all the subfigures on a 
-% line do not exceed the text width or a line break will occur.
-%
-%\begin{figure*}[!t]
-%\centering
-%\subfloat[Case I]{\includegraphics[width=2.5in]{box}%
-%\label{fig_first_case}}
-%\hfil
-%\subfloat[Case II]{\includegraphics[width=2.5in]{box}%
-%\label{fig_second_case}}
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure*}
-%
-% Note that often IEEE papers with subfigures do not employ subfigure
-% captions (using the optional argument to \subfloat[]), but instead will
-% reference/describe all of them (a), (b), etc., within the main caption.
-% Be aware that for subfig.sty to generate the (a), (b), etc., subfigure
-% labels, the optional argument to \subfloat must be present. If a
-% subcaption is not desired, just leave its contents blank,
-% e.g., \subfloat[].
-
-
-% An example of a floating table. Note that, for IEEE style tables, the
-% \caption command should come BEFORE the table and, given that table
-% captions serve much like titles, are usually capitalized except for words
-% such as a, an, and, as, at, but, by, for, in, nor, of, on, or, the, to
-% and up, which are usually not capitalized unless they are the first or
-% last word of the caption. Table text will default to \footnotesize as
-% the IEEE normally uses this smaller font for tables.
-% The \label must come after \caption as always.
-%
-%\begin{table}[!t]
-%% increase table row spacing, adjust to taste
-%\renewcommand{\arraystretch}{1.3}
-% if using array.sty, it might be a good idea to tweak the value of
-% \extrarowheight as needed to properly center the text within the cells
-%\caption{An Example of a Table}
-%\label{table_example}
-%\centering
-%% Some packages, such as MDW tools, offer better commands for making tables
-%% than the plain LaTeX2e tabular which is used here.
-%\begin{tabular}{|c||c|}
-%\hline
-%One & Two\\
-%\hline
-%Three & Four\\
-%\hline
-%\end{tabular}
-%\end{table}
-
-
-% Note that the IEEE does not put floats in the very first column
-% - or typically anywhere on the first page for that matter. Also,
-% in-text middle ("here") positioning is typically not usedpossible, but it
-% is allowed and encouraged for Computer Society conferences (but
-% not Computer Society journals). Most IEEE journals/conferences use
-% top floats exclusively. 
-% Note that, LaTeX2e, unlike IEEE journals/conferences, places
-% footnotes above bottom floats. This can be corrected via the
-% \fnbelowfloat command of the stfloats package.
-
-
-
 
 \section{Conclusion}
 The conclusion goes here.
