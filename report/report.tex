@@ -476,9 +476,9 @@ Changing the library to C++ files in order to test whether \texttt{Thread Buildi
 
 \subsection{Remove unnecessary memory allocations}
 
-Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbours} and \texttt{find18Neighbours} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbours} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speedup was obtained.
+Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbors} and \texttt{find18Neighbours} function to remove an unnecessary intermediate \texttt{vector}. Instead, the pointer of the output memory space was passed directly to \texttt{findNNeighbors} functions. \lref{lst:neighbors} shows the modification of the code. An additional $10.87\%$ speedup was obtained.
 
-\begin{lstlisting}[language=diff,label=lst:neighbors]
+\begin{lstlisting}[language=diff,label=lst:neighbors,captionpos=b,caption={\texttt{neighbors} code modification}]
 --- a/examples/simple/src/main.cpp
 +++ b/examples/simple/src/main.cpp
 @@ -26,15 +26,7 @@
@@ -499,7 +499,7 @@ Several modifications has been made in \texttt{neighbours}, \texttt{find6Neighbo
 
 \subsection{Unroll neighbours checking functions}
 
-\begin{lstlisting}[language=diff,label=lst:find, float, floatplacement=t]
+\begin{lstlisting}[language=diff,label=lst:find,caption={\texttt{findNeighbours} code modification},captionpos=b, float, floatplacement=t]
 --- a/examples/simple/src/Mesh.cpp
 +++ b/examples/simple/src/Mesh.cpp
 @@ -47,77 +47,52 @@ size_t Mesh::getNeighbors(size_t i, size_t *n)
