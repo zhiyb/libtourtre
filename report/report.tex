@@ -351,7 +351,7 @@ and a sample application named "simple". The aim of the exercise is to speed up 
 
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-This exercise aims to accelerate the minimal contour tree (libtourtre \cite{libtourtre}) algorithm. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered and partially paralleled. As a result, the total execution time is reduced by $56.62 \%$.
+This exercise aims to accelerate the minimal contour tree (libtourtre \cite{libtourtre}) algorithm. Different topologies are used in this exercise. The library code and the example program code are evaluated, reordered and partially paralleled. As a result, the total execution time is reduced by $55.62 \%$.
 
 \hfill \today
 
@@ -754,12 +754,11 @@ Report writing and review.
 
 \section{Conclusion}
 
-By utilising multiple optimisation and parallelising techniques, the implementation of \texttt{libtourtre} was speed-up by $55.62 \%$.
+By utilising multiple optimisations and parallelising techniques, the implementation of \texttt{libtourtre} was speed-up by $55.62 \%$.
 
 Using a more sophisticated and platform specifically optimised compiler, e.g. Intel \texttt{icc} may result in a greater improvement.
 
-GPU acceleration not effective (pointers? linked lists?)
-
+GPU acceleration is not particularly useful in this case, since this program involves a lot of pointer and linked list operations, not compatible to GPU iteration space.
 
 % conference papers do not normally have an appendix
 
